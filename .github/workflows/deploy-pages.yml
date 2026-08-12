@@ -28,7 +28,7 @@ jobs:
       - name: Pakete installieren
         run: npm ci
       - name: Website bauen
-        run: npm run build
+        run: npm run build -- --base=/Fashion-and-Cooking-Blog-Website/
       - name: GitHub Pages vorbereiten
         uses: actions/configure-pages@v5
       - name: Website-Paket hochladen

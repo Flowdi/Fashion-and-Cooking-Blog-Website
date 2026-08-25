@@ -37,6 +37,14 @@ npm run build
 
 Die fertigen statischen Dateien werden in `dist/` erzeugt.
 
+TypeScript, CSS und Konfigurationsdateien einheitlich formatieren:
+
+```bash
+npm run format
+```
+
+Der Python-Dienst folgt dem Formatierungsstil von [Black](https://black.readthedocs.io/).
+
 ## Projektstruktur
 
 ```text

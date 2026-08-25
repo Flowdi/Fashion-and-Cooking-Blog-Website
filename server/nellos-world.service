@@ -1,0 +1,17 @@
+[Unit]
+Description=Nellos World editorial API
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/nellos-world
+EnvironmentFile=/etc/nellos-world.env
+ExecStart=/opt/nellos-world/venv/bin/gunicorn --workers 2 --bind 127.0.0.1:8765 --access-logfile - app:app
+Restart=always
+RestartSec=3
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

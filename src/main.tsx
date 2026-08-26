@@ -15,7 +15,19 @@ type Post = {
   content: string[];
   materials?: string[];
   difficulty?: string;
-  recipe?: { duration: string; servings: string; ingredients: string[]; steps: string[] };
+  projectStatus?: string;
+  fabricAmount?: string;
+  patternSource?: string;
+  careInstructions?: string;
+  recipe?: {
+    duration: string;
+    prepTime?: string;
+    cookTime?: string;
+    servings: string;
+    dietaryTags?: string[];
+    ingredients: string[];
+    steps: string[];
+  };
 };
 const posts: Post[] = [
   {
@@ -342,6 +354,18 @@ function Article({ post }: { post: Post }) {
           {post.recipe && (
             <div className="recipe">
               <div className="recipe-facts">
+                {post.recipe.prepTime && (
+                  <span>
+                    <b>Vorbereitung</b>
+                    {post.recipe.prepTime}
+                  </span>
+                )}
+                {post.recipe.cookTime && (
+                  <span>
+                    <b>Kochzeit</b>
+                    {post.recipe.cookTime}
+                  </span>
+                )}
                 <span>
                   <b>Dauer</b>
                   {post.recipe.duration}
@@ -351,6 +375,13 @@ function Article({ post }: { post: Post }) {
                   {post.recipe.servings}
                 </span>
               </div>
+              {(post.recipe.dietaryTags?.length ?? 0) > 0 && (
+                <div className="detail-tags">
+                  {post.recipe.dietaryTags?.map((tag) => (
+                    <span key={tag}>{tag}</span>
+                  ))}
+                </div>
+              )}
               <div className="recipe-columns">
                 <section>
                   <h2>Zutaten</h2>
@@ -372,8 +403,33 @@ function Article({ post }: { post: Post }) {
             </div>
           )}
           {post.category === "Fashion" &&
-            ((post.materials?.length ?? 0) > 0 || post.difficulty) && (
+            ((post.materials?.length ?? 0) > 0 ||
+              post.difficulty ||
+              post.projectStatus ||
+              post.fabricAmount ||
+              post.patternSource ||
+              post.careInstructions) && (
               <div className="project-details">
+                <div className="project-facts">
+                  {post.projectStatus && (
+                    <p>
+                      <b>Projektstatus</b>
+                      {post.projectStatus}
+                    </p>
+                  )}
+                  {post.fabricAmount && (
+                    <p>
+                      <b>Stoffmenge</b>
+                      {post.fabricAmount}
+                    </p>
+                  )}
+                  {post.patternSource && (
+                    <p>
+                      <b>Schnitt &amp; Quelle</b>
+                      {post.patternSource}
+                    </p>
+                  )}
+                </div>
                 {post.difficulty && (
                   <p>
                     <b>Schwierigkeitsgrad</b>
@@ -389,6 +445,12 @@ function Article({ post }: { post: Post }) {
                       ))}
                     </ul>
                   </>
+                )}
+                {post.careInstructions && (
+                  <p>
+                    <b>Pflegehinweise</b>
+                    {post.careInstructions}
+                  </p>
                 )}
               </div>
             )}
@@ -605,12 +667,28 @@ function Redaktion() {
             ))}
           </div>
         )}
-        {category === "Cooking" || editing?.category === "Cooking" ? (
+        {category === "Cooking" ? (
           <div className="special-fields">
             <h3>Rezeptdetails</h3>
             <div className="form-grid">
               <label>
-                Dauer
+                Vorbereitungszeit
+                <input
+                  name="prep_time"
+                  defaultValue={editing?.recipe?.prepTime ?? ""}
+                  placeholder="z. B. 15 Minuten"
+                />
+              </label>
+              <label>
+                Koch- oder Backzeit
+                <input
+                  name="cook_time"
+                  defaultValue={editing?.recipe?.cookTime ?? ""}
+                  placeholder="z. B. 30 Minuten"
+                />
+              </label>
+              <label>
+                Gesamtdauer
                 <input name="duration" defaultValue={editing?.recipe?.duration ?? ""} />
               </label>
               <label>
@@ -618,6 +696,15 @@ function Redaktion() {
                 <input name="servings" defaultValue={editing?.recipe?.servings ?? ""} />
               </label>
             </div>
+            <label>
+              Ernährungs-Tags – einer pro Zeile
+              <textarea
+                name="dietary_tags"
+                rows={3}
+                placeholder={"z. B. Vegetarisch\nGlutenfrei"}
+                defaultValue={editing?.recipe?.dietaryTags?.join("\n") ?? ""}
+              />
+            </label>
             <label>
               Zutaten – eine pro Zeile
               <textarea
@@ -638,20 +725,57 @@ function Redaktion() {
         ) : (
           <div className="special-fields">
             <h3>Fashion-Projektdetails</h3>
-            <label>
-              Schwierigkeitsgrad
-              <input
-                name="difficulty"
-                defaultValue={editing?.difficulty ?? ""}
-                placeholder="z. B. Anfänger"
-              />
-            </label>
+            <div className="form-grid">
+              <label>
+                Projektstatus
+                <select name="project_status" defaultValue={editing?.projectStatus ?? ""}>
+                  <option value="">Keine Angabe</option>
+                  <option>Idee</option>
+                  <option>In Arbeit</option>
+                  <option>Fertiggestellt</option>
+                </select>
+              </label>
+              <label>
+                Schwierigkeitsgrad
+                <select name="difficulty" defaultValue={editing?.difficulty ?? ""}>
+                  <option value="">Keine Angabe</option>
+                  <option>Anfänger</option>
+                  <option>Fortgeschritten</option>
+                  <option>Anspruchsvoll</option>
+                </select>
+              </label>
+              <label>
+                Stoffmenge
+                <input
+                  name="fabric_amount"
+                  defaultValue={editing?.fabricAmount ?? ""}
+                  placeholder="z. B. 2,5 m"
+                />
+              </label>
+              <label>
+                Schnitt &amp; Quelle
+                <input
+                  name="pattern_source"
+                  defaultValue={editing?.patternSource ?? ""}
+                  placeholder="z. B. eigener Schnitt"
+                />
+              </label>
+            </div>
             <label>
               Materialien – eines pro Zeile
               <textarea
                 name="materials"
                 rows={5}
                 defaultValue={editing?.materials?.join("\n") ?? ""}
+              />
+            </label>
+            <label>
+              Pflegehinweise
+              <textarea
+                name="care_instructions"
+                rows={3}
+                defaultValue={editing?.careInstructions ?? ""}
+                placeholder="z. B. bei 30 °C im Schonwaschgang"
               />
             </label>
           </div>

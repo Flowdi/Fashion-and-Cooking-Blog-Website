@@ -62,6 +62,13 @@ def init_db():
             "steps": "TEXT NOT NULL DEFAULT '[]'",
             "materials": "TEXT NOT NULL DEFAULT '[]'",
             "difficulty": "TEXT NOT NULL DEFAULT ''",
+            "prep_time": "TEXT NOT NULL DEFAULT ''",
+            "cook_time": "TEXT NOT NULL DEFAULT ''",
+            "dietary_tags": "TEXT NOT NULL DEFAULT '[]'",
+            "project_status": "TEXT NOT NULL DEFAULT ''",
+            "fabric_amount": "TEXT NOT NULL DEFAULT ''",
+            "pattern_source": "TEXT NOT NULL DEFAULT ''",
+            "care_instructions": "TEXT NOT NULL DEFAULT ''",
             "updated_at": "TEXT NOT NULL DEFAULT ''",
         }
         for column, definition in additions.items():
@@ -107,13 +114,20 @@ def serialize(row):
         "status": row["status"],
         "materials": json_list(row["materials"]),
         "difficulty": row["difficulty"],
+        "projectStatus": row["project_status"],
+        "fabricAmount": row["fabric_amount"],
+        "patternSource": row["pattern_source"],
+        "careInstructions": row["care_instructions"],
         "date": datetime.fromisoformat(row["created_at"]).strftime("%d.%m.%Y"),
         "readTime": f"{max(2, len(' '.join(content).split()) // 180 + 1)} Min.",
     }
     if row["category"] == "Cooking":
         result["recipe"] = {
             "duration": row["duration"],
+            "prepTime": row["prep_time"],
+            "cookTime": row["cook_time"],
             "servings": row["servings"],
+            "dietaryTags": json_list(row["dietary_tags"]),
             "ingredients": json_list(row["ingredients"]),
             "steps": json_list(row["steps"]),
         }
@@ -257,7 +271,12 @@ def post_values(existing=None):
         "gallery": json.dumps(gallery),
         "status": status,
         "duration": request.form.get("duration", "").strip(),
+        "prep_time": request.form.get("prep_time", "").strip()[:50],
+        "cook_time": request.form.get("cook_time", "").strip()[:50],
         "servings": request.form.get("servings", "").strip(),
+        "dietary_tags": json.dumps(
+            lines(request.form.get("dietary_tags", "")), ensure_ascii=False
+        ),
         "ingredients": json.dumps(
             lines(request.form.get("ingredients", "")), ensure_ascii=False
         ),
@@ -266,6 +285,10 @@ def post_values(existing=None):
             lines(request.form.get("materials", "")), ensure_ascii=False
         ),
         "difficulty": request.form.get("difficulty", "").strip()[:50],
+        "project_status": request.form.get("project_status", "").strip()[:80],
+        "fabric_amount": request.form.get("fabric_amount", "").strip()[:80],
+        "pattern_source": request.form.get("pattern_source", "").strip()[:200],
+        "care_instructions": request.form.get("care_instructions", "").strip()[:500],
         "updated_at": datetime.now().isoformat(),
     }
 

@@ -399,9 +399,24 @@ nav a:hover {
 }
 .recipe-facts {
   display: flex;
+  flex-wrap: wrap;
   gap: 45px;
   margin-bottom: 25px;
   font: 400 14px Inter;
+}
+.detail-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: -8px 0 28px;
+}
+.detail-tags span {
+  border: 1px solid #765e38;
+  color: #d9b875;
+  padding: 6px 10px;
+  font: 500 10px Inter;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 .recipe-facts span {
   display: flex;
@@ -679,6 +694,11 @@ footer {
   text-transform: uppercase;
   letter-spacing: 0.12em;
 }
+.project-facts {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
 .password-card {
   margin-top: 45px;
 }
@@ -766,6 +786,9 @@ footer {
   .recipe-columns {
     grid-template-columns: 1fr;
   }
+  .project-facts {
+    grid-template-columns: 1fr 1fr;
+  }
   .gallery-manager {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -812,6 +835,10 @@ footer {
   }
   .gallery-manager {
     grid-template-columns: 1fr 1fr;
+  }
+  .project-facts {
+    grid-template-columns: 1fr;
+    gap: 8px;
   }
   .admin-list > div {
     align-items: flex-start;

@@ -18,8 +18,8 @@ Persönlicher Fashion- und Cooking-Blog im eleganten Dark-Mode-Design.
 - bestehende Beiträge bearbeiten, veröffentlichen oder zurückziehen
 - Vorschau für Entwürfe und veröffentlichte Beiträge
 - bis zu acht zusätzliche Galeriebilder pro Beitrag
-- strukturierte Rezeptfelder für Dauer, Portionen, Zutaten und Schritte
-- strukturierte Fashion-Felder für Materialien und Schwierigkeitsgrad
+- strukturierte Rezeptfelder für Vorbereitungs-, Koch- und Gesamtdauer, Portionen, Ernährungs-Tags, Zutaten und Schritte
+- strukturierte Fashion-Felder für Projektstatus, Schwierigkeitsgrad, Stoffmenge, Schnittquelle, Materialien und Pflegehinweise
 - automatische Bildoptimierung
 - Verwaltung und Löschen eigener Beiträge
 - Passwort direkt im Redaktionsbereich ändern

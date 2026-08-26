@@ -4,6 +4,8 @@ Persönlicher Fashion- und Cooking-Blog im eleganten Dark-Mode-Design.
 
 **Live:** [nellos-world.de](https://nellos-world.de/)
 
+Die Website verbindet ein öffentliches Online-Journal mit einem geschützten Redaktionsbereich. Neue Fashion-Projekte und Rezepte lassen sich dadurch ohne Änderungen am Quellcode direkt vom Smartphone oder Computer veröffentlichen.
+
 ## Funktionen
 
 - responsive Startseite für Desktop, Tablet und Smartphone
@@ -26,6 +28,28 @@ Persönlicher Fashion- und Cooking-Blog im eleganten Dark-Mode-Design.
 - tägliche automatische Sicherung von Datenbank und Bildern
 
 Die derzeitigen öffentlichen Beispielbilder und Beispieltexte dienen als Platzhalter, bis eigene Inhalte verfügbar sind.
+
+## Redaktionsbereich verwenden
+
+Der geschützte Bereich ist unter [nellos-world.de/redaktion](https://nellos-world.de/redaktion) erreichbar.
+
+1. Mit dem Redaktionspasswort anmelden.
+2. Titel, Kategorie, Kurzbeschreibung und Beitragstext eintragen.
+3. Ein Titelbild und bei Bedarf bis zu acht Galeriebilder auswählen.
+4. Die passenden Rezept- oder Fashion-Angaben ergänzen.
+5. Den Beitrag zunächst als Entwurf speichern oder direkt veröffentlichen.
+
+Gespeicherte Beiträge können anschließend in der Vorschau kontrolliert, bearbeitet, veröffentlicht, zurückgezogen oder gelöscht werden. Das Passwort lässt sich ebenfalls im Redaktionsbereich ändern.
+
+## Technik
+
+- React und TypeScript für Website und Redaktionsoberfläche
+- Vite für Entwicklung und Produktions-Build
+- Flask und Gunicorn für die geschützte Beitrags-API
+- SQLite für Beiträge, Status und Einstellungen
+- Pillow zur Prüfung und Optimierung hochgeladener Bilder
+- Nginx als Webserver und Reverse Proxy
+- systemd für den API-Dienst und die täglichen Backups
 
 ## Lokale Entwicklung
 
@@ -69,6 +93,8 @@ server/
 
 Der Redaktionsbereich verwendet eine geschützte, serverseitige Sitzung. Beiträge werden in einer SQLite-Datenbank gespeichert, hochgeladene Bilder in einem getrennten Upload-Ordner.
 
+Die Anmeldung ist gegen wiederholte Fehlversuche begrenzt. Sitzungs-Cookies sind nur über HTTPS erreichbar und können nicht durch JavaScript ausgelesen werden.
+
 Erforderliche Servervariablen:
 
 ```text
@@ -90,4 +116,6 @@ Die Website läuft auf einem Ubuntu-Server hinter Nginx:
 - HTTPS: Let's Encrypt mit automatischer Erneuerung
 - Backups: `/var/backups/nellos-world`, Aufbewahrung 30 Tage
 
-Die Nginx-Konfiguration ist separat von anderen Websites auf demselben Server angelegt.
+Gunicorn ist ausschließlich über die lokale Serveradresse erreichbar. Öffentliche Anfragen laufen verschlüsselt über Nginx und die Domain.
+
+Die Nginx-Konfiguration und alle Website-Dateien sind separat von `floriandumler.de` angelegt. Ein Deployment von Nellos World überschreibt die andere Website daher nicht.

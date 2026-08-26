@@ -15,8 +15,15 @@ Persönlicher Fashion- und Cooking-Blog im eleganten Dark-Mode-Design.
 - geschützter Redaktionsbereich unter `/redaktion`
 - Bilder direkt vom Smartphone hochladen
 - Beiträge als Entwurf speichern oder sofort veröffentlichen
+- bestehende Beiträge bearbeiten, veröffentlichen oder zurückziehen
+- Vorschau für Entwürfe und veröffentlichte Beiträge
+- bis zu acht zusätzliche Galeriebilder pro Beitrag
+- strukturierte Rezeptfelder für Dauer, Portionen, Zutaten und Schritte
+- strukturierte Fashion-Felder für Materialien und Schwierigkeitsgrad
 - automatische Bildoptimierung
 - Verwaltung und Löschen eigener Beiträge
+- Passwort direkt im Redaktionsbereich ändern
+- tägliche automatische Sicherung von Datenbank und Bildern
 
 Die derzeitigen öffentlichen Beispielbilder und Beispieltexte dienen als Platzhalter, bis eigene Inhalte verfügbar sind.
 
@@ -81,5 +88,6 @@ Die Website läuft auf einem Ubuntu-Server hinter Nginx:
 - Beitragsdaten: `/var/lib/nellos-world`
 - Redaktionsdienst: Gunicorn über `127.0.0.1:8765`
 - HTTPS: Let's Encrypt mit automatischer Erneuerung
+- Backups: `/var/backups/nellos-world`, Aufbewahrung 30 Tage
 
 Die Nginx-Konfiguration ist separat von anderen Websites auf demselben Server angelegt.

@@ -10,8 +10,11 @@ type Post = {
   excerpt: string;
   date: string;
   image: string;
+  gallery?: string[];
   readTime: string;
   content: string[];
+  materials?: string[];
+  difficulty?: string;
   recipe?: { duration: string; servings: string; ingredients: string[]; steps: string[] };
 };
 const posts: Post[] = [
@@ -368,10 +371,39 @@ function Article({ post }: { post: Post }) {
               </div>
             </div>
           )}
-          <div className="image-placeholders">
-            <div>Weiteres Bild</div>
-            <div>Detailaufnahme</div>
-          </div>
+          {post.category === "Fashion" &&
+            ((post.materials?.length ?? 0) > 0 || post.difficulty) && (
+              <div className="project-details">
+                {post.difficulty && (
+                  <p>
+                    <b>Schwierigkeitsgrad</b>
+                    {post.difficulty}
+                  </p>
+                )}
+                {(post.materials?.length ?? 0) > 0 && (
+                  <>
+                    <h2>Materialien</h2>
+                    <ul>
+                      {post.materials?.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
+                    </ul>
+                  </>
+                )}
+              </div>
+            )}
+          {(post.gallery?.length ?? 0) > 0 ? (
+            <div className="article-gallery">
+              {post.gallery?.map((image) => (
+                <img src={image} alt="Weiteres Beitragsbild" key={image} />
+              ))}
+            </div>
+          ) : (
+            <div className="image-placeholders">
+              <div>Weiteres Bild</div>
+              <div>Detailaufnahme</div>
+            </div>
+          )}
           <p className="editor-note">
             Beispielbeitrag – Texte und Bilder werden später durch Nellis eigene Inhalte ersetzt.
           </p>
@@ -415,6 +447,9 @@ function Redaktion() {
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [adminPosts, setAdminPosts] = useState<any[]>([]);
+  const [editing, setEditing] = useState<any | null>(null);
+  const [preview, setPreview] = useState<any | null>(null);
+  const [category, setCategory] = useState<Category>("Fashion");
   const load = () =>
     fetch("/api/admin/posts", { credentials: "include" })
       .then((r) => {
@@ -445,14 +480,16 @@ function Redaktion() {
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setMessage("Wird gespeichert …");
-    const r = await fetch("/api/admin/posts", {
-      method: "POST",
+    const r = await fetch(editing ? `/api/admin/posts/${editing.id}` : "/api/admin/posts", {
+      method: editing ? "PUT" : "POST",
       credentials: "include",
       body: new FormData(e.currentTarget),
     });
     if (r.ok) {
       e.currentTarget.reset();
-      setMessage("Beitrag wurde gespeichert.");
+      setEditing(null);
+      setCategory("Fashion");
+      setMessage(editing ? "Änderungen wurden gespeichert." : "Beitrag wurde gespeichert.");
       load();
     } else setMessage("Speichern fehlgeschlagen. Bitte Eingaben prüfen.");
   }
@@ -485,7 +522,7 @@ function Redaktion() {
       <div className="editor-head">
         <div>
           <span>Geschützter Bereich</span>
-          <h1>Neuer Beitrag</h1>
+          <h1>{editing ? "Beitrag bearbeiten" : "Neuer Beitrag"}</h1>
         </div>
         <button
           onClick={async () => {
@@ -496,15 +533,19 @@ function Redaktion() {
           Abmelden
         </button>
       </div>
-      <form className="post-form" onSubmit={submit}>
+      <form className="post-form" onSubmit={submit} key={editing?.id ?? "new"}>
         <div className="form-grid">
           <label>
             Titel
-            <input name="title" required maxLength={140} />
+            <input name="title" required maxLength={140} defaultValue={editing?.title ?? ""} />
           </label>
           <label>
             Kategorie
-            <select name="category">
+            <select
+              name="category"
+              defaultValue={editing?.category ?? "Fashion"}
+              onChange={(e) => setCategory(e.target.value as Category)}
+            >
               <option>Fashion</option>
               <option>Cooking</option>
             </select>
@@ -512,7 +553,13 @@ function Redaktion() {
         </div>
         <label>
           Kurzbeschreibung
-          <textarea name="excerpt" rows={3} required maxLength={300} />
+          <textarea
+            name="excerpt"
+            rows={3}
+            required
+            maxLength={300}
+            defaultValue={editing?.excerpt ?? ""}
+          />
         </label>
         <label>
           Beitragstext
@@ -521,24 +568,110 @@ function Redaktion() {
             rows={8}
             required
             placeholder="Absätze werden durch Leerzeilen getrennt."
+            defaultValue={editing?.content?.join("\n\n") ?? ""}
           />
         </label>
         <div className="form-grid">
           <label>
             Titelbild
-            <input name="image" type="file" accept="image/jpeg,image/png,image/webp" required />
+            <input
+              name="image"
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              required={!editing}
+            />
           </label>
           <label>
             Status
-            <select name="status">
+            <select name="status" defaultValue={editing?.status ?? "draft"}>
               <option value="draft">Als Entwurf speichern</option>
               <option value="published">Sofort veröffentlichen</option>
             </select>
           </label>
         </div>
-        <button className="primary" type="submit">
-          Beitrag speichern
-        </button>
+        <label>
+          Weitere Bilder (bis zu 8)
+          <input name="gallery" type="file" accept="image/jpeg,image/png,image/webp" multiple />
+        </label>
+        {editing?.gallery?.length > 0 && (
+          <div className="gallery-manager">
+            {editing.gallery.map((image: string) => (
+              <label key={image}>
+                <img src={image} alt="Galeriebild" />
+                <span>
+                  <input type="checkbox" name="remove_gallery" value={image} /> Bild entfernen
+                </span>
+              </label>
+            ))}
+          </div>
+        )}
+        {category === "Cooking" || editing?.category === "Cooking" ? (
+          <div className="special-fields">
+            <h3>Rezeptdetails</h3>
+            <div className="form-grid">
+              <label>
+                Dauer
+                <input name="duration" defaultValue={editing?.recipe?.duration ?? ""} />
+              </label>
+              <label>
+                Portionen
+                <input name="servings" defaultValue={editing?.recipe?.servings ?? ""} />
+              </label>
+            </div>
+            <label>
+              Zutaten – eine pro Zeile
+              <textarea
+                name="ingredients"
+                rows={6}
+                defaultValue={editing?.recipe?.ingredients?.join("\n") ?? ""}
+              />
+            </label>
+            <label>
+              Zubereitung – ein Schritt pro Zeile
+              <textarea
+                name="steps"
+                rows={6}
+                defaultValue={editing?.recipe?.steps?.join("\n") ?? ""}
+              />
+            </label>
+          </div>
+        ) : (
+          <div className="special-fields">
+            <h3>Fashion-Projektdetails</h3>
+            <label>
+              Schwierigkeitsgrad
+              <input
+                name="difficulty"
+                defaultValue={editing?.difficulty ?? ""}
+                placeholder="z. B. Anfänger"
+              />
+            </label>
+            <label>
+              Materialien – eines pro Zeile
+              <textarea
+                name="materials"
+                rows={5}
+                defaultValue={editing?.materials?.join("\n") ?? ""}
+              />
+            </label>
+          </div>
+        )}
+        <div className="form-actions">
+          <button className="primary" type="submit">
+            {editing ? "Änderungen speichern" : "Beitrag speichern"}
+          </button>
+          {editing && (
+            <button
+              type="button"
+              onClick={() => {
+                setEditing(null);
+                setCategory("Fashion");
+              }}
+            >
+              Abbrechen
+            </button>
+          )}
+        </div>
         {message && <p className="form-message">{message}</p>}
       </form>
       <section className="admin-list">
@@ -554,23 +687,93 @@ function Redaktion() {
                   {p.category} · {p.status === "published" ? "Veröffentlicht" : "Entwurf"}
                 </span>
               </div>
-              <button
-                onClick={async () => {
-                  if (confirm("Diesen Beitrag wirklich löschen?")) {
-                    await fetch(`/api/admin/posts/${p.id}`, {
-                      method: "DELETE",
+              <div className="admin-actions">
+                <button
+                  onClick={() => {
+                    setEditing(p);
+                    setCategory(p.category);
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                >
+                  Bearbeiten
+                </button>
+                <button onClick={() => setPreview(p)}>Vorschau</button>
+                <button
+                  onClick={async () => {
+                    await fetch(`/api/admin/posts/${p.id}/status`, {
+                      method: "PATCH",
+                      headers: { "Content-Type": "application/json" },
                       credentials: "include",
+                      body: JSON.stringify({
+                        status: p.status === "published" ? "draft" : "published",
+                      }),
                     });
                     load();
-                  }
-                }}
-              >
-                Löschen
-              </button>
+                  }}
+                >
+                  {p.status === "published" ? "Zurückziehen" : "Veröffentlichen"}
+                </button>
+                <button
+                  onClick={async () => {
+                    if (confirm("Diesen Beitrag wirklich löschen?")) {
+                      await fetch(`/api/admin/posts/${p.id}`, {
+                        method: "DELETE",
+                        credentials: "include",
+                      });
+                      load();
+                    }
+                  }}
+                >
+                  Löschen
+                </button>
+              </div>
             </div>
           ))
         )}
       </section>
+      <section className="password-card">
+        <h2>Passwort ändern</h2>
+        <form
+          onSubmit={async (e) => {
+            e.preventDefault();
+            const form = new FormData(e.currentTarget);
+            const r = await fetch("/api/admin/password", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              credentials: "include",
+              body: JSON.stringify({ current: form.get("current"), new: form.get("new") }),
+            });
+            setMessage(
+              r.ok
+                ? "Passwort wurde geändert."
+                : "Passwortänderung fehlgeschlagen. Mindestens 12 Zeichen verwenden.",
+            );
+            if (r.ok) e.currentTarget.reset();
+          }}
+        >
+          <div className="form-grid">
+            <label>
+              Aktuelles Passwort
+              <input name="current" type="password" required />
+            </label>
+            <label>
+              Neues Passwort
+              <input name="new" type="password" minLength={12} required />
+            </label>
+          </div>
+          <button type="submit">Passwort ändern</button>
+        </form>
+      </section>
+      {preview && (
+        <div className="preview-modal" role="dialog" aria-modal="true">
+          <div>
+            <button className="preview-close" onClick={() => setPreview(null)}>
+              Schließen
+            </button>
+            <Article post={preview} />
+          </div>
+        </div>
+      )}
     </main>
   );
 }

@@ -612,6 +612,107 @@ footer {
   font-size: 11px;
   color: #91867a;
 }
+.special-fields,
+.password-card {
+  border-top: 1px solid #443722;
+  padding-top: 20px;
+}
+.special-fields h3,
+.password-card h2 {
+  font: 500 30px "Cormorant Garamond";
+  margin: 0 0 18px;
+}
+.form-actions,
+.admin-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.admin-list > div > .admin-actions {
+  flex-direction: row;
+  align-items: center;
+}
+.gallery-manager {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+.gallery-manager label {
+  border: 1px solid #55452e;
+  padding: 8px;
+}
+.gallery-manager img {
+  width: 100%;
+  height: 100px;
+  object-fit: cover;
+}
+.gallery-manager span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+}
+.gallery-manager input {
+  width: auto;
+}
+.article-gallery {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin: 40px 0;
+}
+.article-gallery img {
+  width: 100%;
+  height: 330px;
+  object-fit: cover;
+}
+.project-details {
+  margin: 35px 0;
+  padding: 25px;
+  border-top: 1px solid #594323;
+  border-bottom: 1px solid #594323;
+}
+.project-details b {
+  display: block;
+  color: var(--gold);
+  font: 500 11px Inter;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+.password-card {
+  margin-top: 45px;
+}
+.password-card form {
+  display: grid;
+  gap: 18px;
+}
+.preview-modal {
+  position: fixed;
+  inset: 0;
+  background: #000d;
+  z-index: 50;
+  overflow: auto;
+  padding: 30px;
+}
+.preview-modal > div {
+  position: relative;
+  max-width: 1100px;
+  margin: auto;
+  background: #0d0f10;
+  border: 1px solid #765e38;
+}
+.preview-close {
+  position: sticky;
+  top: 12px;
+  float: right;
+  margin: 12px;
+  z-index: 2;
+  background: #6a2027 !important;
+  color: white !important;
+}
+.preview-modal .article-image {
+  max-height: 480px;
+}
 @media (max-width: 900px) {
   header {
     grid-template-columns: 1fr auto auto;
@@ -665,6 +766,9 @@ footer {
   .recipe-columns {
     grid-template-columns: 1fr;
   }
+  .gallery-manager {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 @media (max-width: 560px) {
   .brand {
@@ -702,8 +806,20 @@ footer {
     font-size: 18px;
   }
   .image-placeholders,
-  .form-grid {
+  .form-grid,
+  .article-gallery {
     grid-template-columns: 1fr;
+  }
+  .gallery-manager {
+    grid-template-columns: 1fr 1fr;
+  }
+  .admin-list > div {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .article-gallery img {
+    height: 250px;
   }
   .recipe-facts {
     gap: 25px;

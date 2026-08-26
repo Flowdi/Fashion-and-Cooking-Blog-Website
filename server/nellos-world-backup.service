@@ -1,0 +1,6 @@
+[Unit]
+Description=Backup Nellos World posts and uploads
+
+[Service]
+Type=oneshot
+ExecStart=/opt/nellos-world/backup.sh

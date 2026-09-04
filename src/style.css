@@ -592,6 +592,10 @@ footer {
   padding: 11px 20px;
   cursor: pointer;
 }
+.editor button:disabled {
+  cursor: wait;
+  opacity: 0.55;
+}
 .login-card form {
   display: grid;
   gap: 18px;

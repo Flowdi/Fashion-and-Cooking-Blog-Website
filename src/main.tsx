@@ -523,6 +523,7 @@ function Redaktion() {
   const [editing, setEditing] = useState<any | null>(null);
   const [preview, setPreview] = useState<any | null>(null);
   const [category, setCategory] = useState<Category>("Fashion");
+  const [busy, setBusy] = useState(false);
   const load = () =>
     fetch("/api/admin/posts", { credentials: "include" })
       .then((r) => {
@@ -539,32 +540,57 @@ function Redaktion() {
   }, []);
   async function login(e: React.FormEvent) {
     e.preventDefault();
-    const r = await fetch("/api/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ password }),
-    });
-    if (r.ok) {
-      setPassword("");
-      load();
-    } else setMessage("Das Passwort ist nicht korrekt.");
+    if (busy) return;
+    setBusy(true);
+    setMessage("Anmeldung wird geprüft …");
+    try {
+      const r = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ password }),
+      });
+      if (r.ok) {
+        setPassword("");
+        setMessage("");
+        load();
+      } else if (r.status === 429) {
+        setMessage("Zu viele Versuche. Bitte in einigen Minuten erneut probieren.");
+      } else {
+        setMessage("Das Passwort ist nicht korrekt.");
+      }
+    } catch {
+      setMessage("Die Anmeldung ist gerade nicht erreichbar. Bitte erneut versuchen.");
+    } finally {
+      setBusy(false);
+    }
   }
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (busy) return;
+    setBusy(true);
     setMessage("Wird gespeichert …");
-    const r = await fetch(editing ? `/api/admin/posts/${editing.id}` : "/api/admin/posts", {
-      method: editing ? "PUT" : "POST",
-      credentials: "include",
-      body: new FormData(e.currentTarget),
-    });
-    if (r.ok) {
-      e.currentTarget.reset();
-      setEditing(null);
-      setCategory("Fashion");
-      setMessage(editing ? "Änderungen wurden gespeichert." : "Beitrag wurde gespeichert.");
-      load();
-    } else setMessage("Speichern fehlgeschlagen. Bitte Eingaben prüfen.");
+    const form = e.currentTarget;
+    try {
+      const r = await fetch(editing ? `/api/admin/posts/${editing.id}` : "/api/admin/posts", {
+        method: editing ? "PUT" : "POST",
+        credentials: "include",
+        body: new FormData(form),
+      });
+      if (r.ok) {
+        form.reset();
+        setEditing(null);
+        setCategory("Fashion");
+        setMessage(editing ? "Änderungen wurden gespeichert." : "Beitrag wurde gespeichert.");
+        load();
+      } else {
+        setMessage("Speichern fehlgeschlagen. Bitte Eingaben und Bilder prüfen.");
+      }
+    } catch {
+      setMessage("Speichern ist gerade nicht möglich. Die Eingaben bleiben erhalten.");
+    } finally {
+      setBusy(false);
+    }
   }
   if (!logged)
     return (
@@ -584,7 +610,9 @@ function Redaktion() {
                 required
               />
             </label>
-            <button type="submit">Anmelden</button>
+            <button type="submit" disabled={busy}>
+              {busy ? "Wird angemeldet …" : "Anmelden"}
+            </button>
           </form>
           {message && <p className="form-message">{message}</p>}
         </section>
@@ -792,8 +820,8 @@ function Redaktion() {
           </div>
         )}
         <div className="form-actions">
-          <button className="primary" type="submit">
-            {editing ? "Änderungen speichern" : "Beitrag speichern"}
+          <button className="primary" type="submit" disabled={busy}>
+            {busy ? "Wird gespeichert …" : editing ? "Änderungen speichern" : "Beitrag speichern"}
           </button>
           {editing && (
             <button

@@ -222,7 +222,7 @@ function Header({
 function PostCard({ post }: { post: Post }) {
   return (
     <SiteLink className="post-card" to={`/beitrag/${post.slug}`}>
-      <img src={post.image} alt="Austauschbares Beispielbild" />
+      <img src={post.image} alt={`Titelbild zu „${post.title}“`} loading="lazy" decoding="async" />
       <div className="post-meta">
         <b>{post.category}</b>
         <time>{post.date}</time>
@@ -346,7 +346,12 @@ function Article({ post }: { post: Post }) {
             <span>{post.readTime}</span>
           </div>
         </div>
-        <img className="article-image" src={post.image} alt="Austauschbares Titelbild" />
+        <img
+          className="article-image"
+          src={post.image}
+          alt={`Titelbild zu „${post.title}“`}
+          fetchPriority="high"
+        />
         <div className="article-body">
           {post.content.map((p, i) => (
             <p key={i}>{p}</p>
@@ -456,8 +461,14 @@ function Article({ post }: { post: Post }) {
             )}
           {(post.gallery?.length ?? 0) > 0 ? (
             <div className="article-gallery">
-              {post.gallery?.map((image) => (
-                <img src={image} alt="Weiteres Beitragsbild" key={image} />
+              {post.gallery?.map((image, index) => (
+                <img
+                  src={image}
+                  alt={`Galeriebild ${index + 1} zu „${post.title}“`}
+                  loading="lazy"
+                  decoding="async"
+                  key={image}
+                />
               ))}
             </div>
           ) : (
@@ -659,7 +670,7 @@ function Redaktion() {
           <div className="gallery-manager">
             {editing.gallery.map((image: string) => (
               <label key={image}>
-                <img src={image} alt="Galeriebild" />
+                <img src={image} alt="Vorhandenes Galeriebild" loading="lazy" decoding="async" />
                 <span>
                   <input type="checkbox" name="remove_gallery" value={image} /> Bild entfernen
                 </span>
@@ -943,8 +954,11 @@ function App() {
   } else page = <NotFound />;
   return (
     <>
+      <a className="skip-link" href="#main-content">
+        Zum Inhalt springen
+      </a>
       <Header lang={lang} setLang={setLang} />
-      {page}
+      <div id="main-content">{page}</div>
       <footer>
         <span>Nellis Fashion &amp; Food Blog</span>
         <span>Fashion · Food · Geschichten</span>

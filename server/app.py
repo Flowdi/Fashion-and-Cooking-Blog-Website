@@ -190,6 +190,13 @@ def security_headers(response):
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["Referrer-Policy"] = "same-origin"
+    response.headers["Permissions-Policy"] = "camera=(), geolocation=(), microphone=()"
+    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    response.headers["X-Permitted-Cross-Domain-Policies"] = "none"
+    if request.path == "/api/posts" and request.method == "GET":
+        response.headers["Cache-Control"] = "public, max-age=60"
+    else:
+        response.headers["Cache-Control"] = "no-store"
     return response
 
 

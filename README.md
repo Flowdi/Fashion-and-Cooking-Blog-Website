@@ -93,7 +93,7 @@ server/
 
 Der Redaktionsbereich verwendet eine geschützte, serverseitige Sitzung. Beiträge werden in einer SQLite-Datenbank gespeichert, hochgeladene Bilder in einem getrennten Upload-Ordner.
 
-Die Anmeldung ist gegen wiederholte Fehlversuche begrenzt. Sitzungs-Cookies sind nur über HTTPS erreichbar und können nicht durch JavaScript ausgelesen werden.
+Die Anmeldung ist gegen wiederholte Fehlversuche begrenzt. Sitzungs-Cookies sind nur über HTTPS erreichbar und können nicht durch JavaScript ausgelesen werden. Zusätzliche HTTP-Sicherheitsheader begrenzen nicht benötigte Browserfunktionen; öffentliche Beitragslisten werden kurz zwischengespeichert, geschützte Antworten dagegen nie.
 
 Erforderliche Servervariablen:
 

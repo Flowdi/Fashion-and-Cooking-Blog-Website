@@ -175,16 +175,19 @@ function updatePageMetadata(title: string, description: string, path: string) {
 function SiteLink({
   to,
   className,
+  current,
   children,
 }: {
   to: string;
   className?: string;
+  current?: boolean;
   children: React.ReactNode;
 }) {
   return (
     <a
       href={to}
       className={className}
+      aria-current={current ? "page" : undefined}
       onClick={(e) => {
         e.preventDefault();
         navigate(to);
@@ -197,12 +200,22 @@ function SiteLink({
 function Header({
   lang,
   setLang,
+  path,
 }: {
   lang: keyof typeof labels;
   setLang: (l: keyof typeof labels) => void;
+  path: string;
 }) {
   const [open, setOpen] = useState(false);
   const t = labels[lang];
+  useEffect(() => {
+    if (!open) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("keydown", closeOnEscape);
+    return () => document.removeEventListener("keydown", closeOnEscape);
+  }, [open]);
   return (
     <header>
       <SiteLink className="brand" to="/">
@@ -210,17 +223,26 @@ function Header({
       </SiteLink>
       <button
         className="menu"
-        aria-label="Menü öffnen"
+        aria-label={open ? "Menü schließen" : "Menü öffnen"}
         aria-expanded={open}
+        aria-controls="main-navigation"
         onClick={() => setOpen(!open)}
       >
         ☰
       </button>
-      <nav className={open ? "open" : ""} onClick={() => setOpen(false)}>
-        <SiteLink to="/">{t.home}</SiteLink>
-        <SiteLink to="/fashion">Fashion</SiteLink>
-        <SiteLink to="/cooking">Cooking</SiteLink>
-        <SiteLink to="/ueber-mich">{t.about}</SiteLink>
+      <nav id="main-navigation" className={open ? "open" : ""} onClick={() => setOpen(false)}>
+        <SiteLink to="/" current={path === "/"}>
+          {t.home}
+        </SiteLink>
+        <SiteLink to="/fashion" current={path === "/fashion"}>
+          Fashion
+        </SiteLink>
+        <SiteLink to="/cooking" current={path === "/cooking"}>
+          Cooking
+        </SiteLink>
+        <SiteLink to="/ueber-mich" current={path === "/ueber-mich"}>
+          {t.about}
+        </SiteLink>
       </nav>
       <div className="lang" aria-label="Sprache wählen">
         {(["DE", "EN", "PL"] as const).map((item, i) => (
@@ -1032,7 +1054,7 @@ function App() {
       <a className="skip-link" href="#main-content">
         Zum Inhalt springen
       </a>
-      <Header lang={lang} setLang={setLang} />
+      <Header lang={lang} setLang={setLang} path={path} />
       <div id="main-content">{page}</div>
       <footer>
         <span>Nellis Fashion &amp; Food Blog</span>

@@ -74,6 +74,10 @@ nav a:hover {
   color: #e6bb6d;
   border-color: var(--gold);
 }
+nav a[aria-current="page"] {
+  color: #e6bb6d;
+  border-color: var(--gold);
+}
 .lang {
   justify-self: end;
   display: flex;

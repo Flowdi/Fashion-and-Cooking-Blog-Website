@@ -156,6 +156,22 @@ function navigate(path: string) {
   window.dispatchEvent(new PopStateEvent("popstate"));
   window.scrollTo(0, 0);
 }
+function updatePageMetadata(title: string, description: string, path: string) {
+  document.title = title;
+  const canonicalUrl = `https://nellos-world.de${path === "/" ? "/" : path}`;
+  const values = {
+    'meta[name="description"]': description,
+    'meta[property="og:title"]': title,
+    'meta[property="og:description"]': description,
+    'meta[property="og:url"]': canonicalUrl,
+  };
+  Object.entries(values).forEach(([selector, content]) => {
+    document.querySelector<HTMLMetaElement>(selector)?.setAttribute("content", content);
+  });
+  document
+    .querySelector<HTMLLinkElement>('link[rel="canonical"]')
+    ?.setAttribute("href", canonicalUrl);
+}
 function SiteLink({
   to,
   className,
@@ -970,6 +986,37 @@ function App() {
   }, []);
   useEffect(() => localStorage.setItem("lang", lang), [lang]);
   const items = [...livePosts, ...posts];
+  useEffect(() => {
+    const article = items.find((post) => `/beitrag/${post.slug}` === path);
+    if (article) {
+      updatePageMetadata(`${article.title} | Nellis Fashion & Food Blog`, article.excerpt, path);
+      return;
+    }
+    const metadata: Record<string, [string, string]> = {
+      "/": [
+        "Nellis Fashion & Food Blog",
+        "Nellis persönliches Journal für Fashion-Projekte, Rezepte und Geschichten rund um Mode und Genuss.",
+      ],
+      "/fashion": [
+        "Fashion | Nellis Fashion & Food Blog",
+        "Entwürfe, Nähprojekte, persönliche Looks und Inspiration rund um Mode.",
+      ],
+      "/cooking": [
+        "Cooking | Nellis Fashion & Food Blog",
+        "Lieblingsrezepte, kulinarische Ideen und Geschichten aus Nellis Küche.",
+      ],
+      "/ueber-mich": [
+        "Über Nelli | Nellis Fashion & Food Blog",
+        "Mehr über Nelli und ihre Leidenschaft für Mode, Design und Kochen.",
+      ],
+      "/redaktion": ["Redaktion | Nellis Fashion & Food Blog", "Geschützter Redaktionsbereich."],
+    };
+    const [title, description] = metadata[path] ?? [
+      "Seite nicht gefunden | Nellis Fashion & Food Blog",
+      "Die gewünschte Seite wurde nicht gefunden.",
+    ];
+    updatePageMetadata(title, description, path);
+  }, [path, livePosts]);
   let page: React.ReactNode;
   if (path === "/") page = <Home lang={lang} items={items} />;
   else if (path === "/fashion") page = <Listing category="Fashion" items={items} />;

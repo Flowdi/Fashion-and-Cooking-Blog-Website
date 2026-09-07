@@ -529,6 +529,35 @@ nav a[aria-current="page"] {
 .not-found h1 {
   font: 500 50px "Cormorant Garamond";
 }
+.fatal-error {
+  min-height: 100vh;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  padding: 30px;
+  text-align: center;
+}
+.fatal-error span {
+  color: var(--gold);
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+}
+.fatal-error h1 {
+  max-width: 700px;
+  font: 500 clamp(40px, 7vw, 70px)/1 "Cormorant Garamond";
+  margin: 18px 0;
+}
+.fatal-error p {
+  color: #bdb4a8;
+}
+.fatal-error button {
+  margin-top: 15px;
+  border: 1px solid #9d7840;
+  background: #6a2027;
+  color: white;
+  padding: 12px 20px;
+  cursor: pointer;
+}
 footer {
   border-top: 1px solid #3e3324;
   padding: 24px 3vw;

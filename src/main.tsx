@@ -3,6 +3,30 @@ import ReactDOM from "react-dom/client";
 import "./style.css";
 
 type Category = "Fashion" | "Cooking";
+type ErrorBoundaryState = { failed: boolean };
+
+class ErrorBoundary extends React.Component<React.PropsWithChildren, ErrorBoundaryState> {
+  state: ErrorBoundaryState = { failed: false };
+
+  static getDerivedStateFromError(): ErrorBoundaryState {
+    return { failed: true };
+  }
+
+  render() {
+    if (this.state.failed) {
+      return (
+        <main className="fatal-error">
+          <span>Etwas ist schiefgegangen</span>
+          <h1>Die Seite konnte nicht vollständig geladen werden.</h1>
+          <p>Bitte lade die Seite neu. Bereits veröffentlichte Beiträge bleiben erhalten.</p>
+          <button onClick={() => location.reload()}>Seite neu laden</button>
+        </main>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 type Post = {
   slug: string;
   category: Category;
@@ -1066,6 +1090,8 @@ function App() {
 }
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <App />
+    <ErrorBoundary>
+      <App />
+    </ErrorBoundary>
   </React.StrictMode>,
 );

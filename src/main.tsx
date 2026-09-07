@@ -586,6 +586,7 @@ function Redaktion() {
   const [preview, setPreview] = useState<any | null>(null);
   const [category, setCategory] = useState<Category>("Fashion");
   const [busy, setBusy] = useState(false);
+  const [dirty, setDirty] = useState(false);
   const load = () =>
     fetch("/api/admin/posts", { credentials: "include" })
       .then((r) => {
@@ -600,6 +601,14 @@ function Redaktion() {
   useEffect(() => {
     load();
   }, []);
+  useEffect(() => {
+    const warnBeforeLeaving = (event: BeforeUnloadEvent) => {
+      if (!dirty) return;
+      event.preventDefault();
+    };
+    addEventListener("beforeunload", warnBeforeLeaving);
+    return () => removeEventListener("beforeunload", warnBeforeLeaving);
+  }, [dirty]);
   async function login(e: React.FormEvent) {
     e.preventDefault();
     if (busy) return;
@@ -641,6 +650,7 @@ function Redaktion() {
       });
       if (r.ok) {
         form.reset();
+        setDirty(false);
         setEditing(null);
         setCategory("Fashion");
         setMessage(editing ? "Änderungen wurden gespeichert." : "Beitrag wurde gespeichert.");
@@ -696,7 +706,12 @@ function Redaktion() {
           Abmelden
         </button>
       </div>
-      <form className="post-form" onSubmit={submit} key={editing?.id ?? "new"}>
+      <form
+        className="post-form"
+        onSubmit={submit}
+        onChange={() => setDirty(true)}
+        key={editing?.id ?? "new"}
+      >
         <div className="form-grid">
           <label>
             Titel
@@ -889,8 +904,10 @@ function Redaktion() {
             <button
               type="button"
               onClick={() => {
+                if (dirty && !confirm("Ungespeicherte Änderungen wirklich verwerfen?")) return;
                 setEditing(null);
                 setCategory("Fashion");
+                setDirty(false);
               }}
             >
               Abbrechen
@@ -915,8 +932,10 @@ function Redaktion() {
               <div className="admin-actions">
                 <button
                   onClick={() => {
+                    if (dirty && !confirm("Ungespeicherte Änderungen wirklich verwerfen?")) return;
                     setEditing(p);
                     setCategory(p.category);
+                    setDirty(false);
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
                 >

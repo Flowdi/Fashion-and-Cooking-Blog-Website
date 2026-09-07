@@ -745,6 +745,7 @@ function Redaktion() {
             name="content"
             rows={8}
             required
+            maxLength={30000}
             placeholder="Absätze werden durch Leerzeilen getrennt."
             defaultValue={editing?.content?.join("\n\n") ?? ""}
           />
@@ -791,6 +792,7 @@ function Redaktion() {
                 Vorbereitungszeit
                 <input
                   name="prep_time"
+                  maxLength={50}
                   defaultValue={editing?.recipe?.prepTime ?? ""}
                   placeholder="z. B. 15 Minuten"
                 />
@@ -799,17 +801,26 @@ function Redaktion() {
                 Koch- oder Backzeit
                 <input
                   name="cook_time"
+                  maxLength={50}
                   defaultValue={editing?.recipe?.cookTime ?? ""}
                   placeholder="z. B. 30 Minuten"
                 />
               </label>
               <label>
                 Gesamtdauer
-                <input name="duration" defaultValue={editing?.recipe?.duration ?? ""} />
+                <input
+                  name="duration"
+                  maxLength={50}
+                  defaultValue={editing?.recipe?.duration ?? ""}
+                />
               </label>
               <label>
                 Portionen
-                <input name="servings" defaultValue={editing?.recipe?.servings ?? ""} />
+                <input
+                  name="servings"
+                  maxLength={50}
+                  defaultValue={editing?.recipe?.servings ?? ""}
+                />
               </label>
             </div>
             <label>
@@ -817,6 +828,7 @@ function Redaktion() {
               <textarea
                 name="dietary_tags"
                 rows={3}
+                maxLength={1000}
                 placeholder={"z. B. Vegetarisch\nGlutenfrei"}
                 defaultValue={editing?.recipe?.dietaryTags?.join("\n") ?? ""}
               />
@@ -826,6 +838,7 @@ function Redaktion() {
               <textarea
                 name="ingredients"
                 rows={6}
+                maxLength={10000}
                 defaultValue={editing?.recipe?.ingredients?.join("\n") ?? ""}
               />
             </label>
@@ -834,6 +847,7 @@ function Redaktion() {
               <textarea
                 name="steps"
                 rows={6}
+                maxLength={10000}
                 defaultValue={editing?.recipe?.steps?.join("\n") ?? ""}
               />
             </label>
@@ -864,6 +878,7 @@ function Redaktion() {
                 Stoffmenge
                 <input
                   name="fabric_amount"
+                  maxLength={80}
                   defaultValue={editing?.fabricAmount ?? ""}
                   placeholder="z. B. 2,5 m"
                 />
@@ -872,6 +887,7 @@ function Redaktion() {
                 Schnitt &amp; Quelle
                 <input
                   name="pattern_source"
+                  maxLength={200}
                   defaultValue={editing?.patternSource ?? ""}
                   placeholder="z. B. eigener Schnitt"
                 />
@@ -882,6 +898,7 @@ function Redaktion() {
               <textarea
                 name="materials"
                 rows={5}
+                maxLength={10000}
                 defaultValue={editing?.materials?.join("\n") ?? ""}
               />
             </label>
@@ -890,6 +907,7 @@ function Redaktion() {
               <textarea
                 name="care_instructions"
                 rows={3}
+                maxLength={500}
                 defaultValue={editing?.careInstructions ?? ""}
                 placeholder="z. B. bei 30 °C im Schonwaschgang"
               />

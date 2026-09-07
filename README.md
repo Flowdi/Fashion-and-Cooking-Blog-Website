@@ -23,6 +23,7 @@ Die Website verbindet ein öffentliches Online-Journal mit einem geschützten Re
 - strukturierte Rezeptfelder für Vorbereitungs-, Koch- und Gesamtdauer, Portionen, Ernährungs-Tags, Zutaten und Schritte
 - strukturierte Fashion-Felder für Projektstatus, Schwierigkeitsgrad, Stoffmenge, Schnittquelle, Materialien und Pflegehinweise
 - automatische Bildoptimierung
+- abgestimmte Eingabegrenzen für zuverlässige Beiträge und Bildgalerien
 - Verwaltung und Löschen eigener Beiträge
 - Passwort direkt im Redaktionsbereich ändern
 - tägliche automatische Sicherung von Datenbank und Bildern

@@ -250,6 +250,8 @@ def post_values(existing=None):
     status = request.form.get("status", "")
     if not title or category not in ("Fashion", "Cooking") or not excerpt or not body:
         raise ValueError("invalid fields")
+    if len(title) > 140 or len(excerpt) > 300 or len(body) > 30000:
+        raise ValueError("content too long")
     if status not in ("draft", "published"):
         raise ValueError("invalid status")
     image_file = request.files.get("image")
@@ -262,7 +264,8 @@ def post_values(existing=None):
     if not image:
         raise ValueError("missing image")
     gallery = json_list(existing["gallery"]) if existing else []
-    for file in request.files.getlist("gallery")[:8]:
+    available_gallery_slots = max(0, 8 - len(gallery))
+    for file in request.files.getlist("gallery")[:available_gallery_slots]:
         if file and file.filename:
             gallery.append(save_image(file))
     removed = set(request.form.getlist("remove_gallery"))
@@ -277,19 +280,21 @@ def post_values(existing=None):
         "image": image,
         "gallery": json.dumps(gallery),
         "status": status,
-        "duration": request.form.get("duration", "").strip(),
+        "duration": request.form.get("duration", "").strip()[:50],
         "prep_time": request.form.get("prep_time", "").strip()[:50],
         "cook_time": request.form.get("cook_time", "").strip()[:50],
-        "servings": request.form.get("servings", "").strip(),
+        "servings": request.form.get("servings", "").strip()[:50],
         "dietary_tags": json.dumps(
-            lines(request.form.get("dietary_tags", "")), ensure_ascii=False
+            lines(request.form.get("dietary_tags", "")[:1000]), ensure_ascii=False
         ),
         "ingredients": json.dumps(
-            lines(request.form.get("ingredients", "")), ensure_ascii=False
+            lines(request.form.get("ingredients", "")[:10000]), ensure_ascii=False
         ),
-        "steps": json.dumps(lines(request.form.get("steps", "")), ensure_ascii=False),
+        "steps": json.dumps(
+            lines(request.form.get("steps", "")[:10000]), ensure_ascii=False
+        ),
         "materials": json.dumps(
-            lines(request.form.get("materials", "")), ensure_ascii=False
+            lines(request.form.get("materials", "")[:10000]), ensure_ascii=False
         ),
         "difficulty": request.form.get("difficulty", "").strip()[:50],
         "project_status": request.form.get("project_status", "").strip()[:80],

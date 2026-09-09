@@ -587,17 +587,26 @@ function Redaktion() {
   const [category, setCategory] = useState<Category>("Fashion");
   const [busy, setBusy] = useState(false);
   const [dirty, setDirty] = useState(false);
-  const load = () =>
-    fetch("/api/admin/posts", { credentials: "include" })
-      .then((r) => {
-        if (!r.ok) throw 0;
-        return r.json();
-      })
-      .then((d) => {
-        setLogged(true);
-        setAdminPosts(d);
-      })
-      .catch(() => setLogged(false));
+  async function load() {
+    try {
+      const response = await fetch("/api/admin/posts", { credentials: "include" });
+      if (response.status === 401) {
+        setLogged(false);
+        return;
+      }
+      if (!response.ok) throw new Error();
+      setAdminPosts(await response.json());
+      setLogged(true);
+    } catch {
+      setMessage("Die Beitragsliste konnte nicht geladen werden. Bitte erneut versuchen.");
+    }
+  }
+  function handleExpiredSession(response: Response) {
+    if (response.status !== 401) return false;
+    setLogged(false);
+    setMessage("Die Sitzung ist abgelaufen. Bitte erneut anmelden.");
+    return true;
+  }
   useEffect(() => {
     load();
   }, []);
@@ -655,7 +664,7 @@ function Redaktion() {
         setCategory("Fashion");
         setMessage(editing ? "Änderungen wurden gespeichert." : "Beitrag wurde gespeichert.");
         load();
-      } else {
+      } else if (!handleExpiredSession(r)) {
         setMessage("Speichern fehlgeschlagen. Bitte Eingaben und Bilder prüfen.");
       }
     } catch {
@@ -699,8 +708,17 @@ function Redaktion() {
         </div>
         <button
           onClick={async () => {
-            await fetch("/api/logout", { method: "POST", credentials: "include" });
-            setLogged(false);
+            try {
+              const response = await fetch("/api/logout", {
+                method: "POST",
+                credentials: "include",
+              });
+              if (!response.ok) throw new Error();
+              setLogged(false);
+              setMessage("");
+            } catch {
+              setMessage("Abmelden fehlgeschlagen. Bitte erneut versuchen.");
+            }
           }}
         >
           Abmelden
@@ -969,7 +987,7 @@ function Redaktion() {
                 <button onClick={() => setPreview(p)}>Vorschau</button>
                 <button
                   onClick={async () => {
-                    await fetch(`/api/admin/posts/${p.id}/status`, {
+                    const response = await fetch(`/api/admin/posts/${p.id}/status`, {
                       method: "PATCH",
                       headers: { "Content-Type": "application/json" },
                       credentials: "include",
@@ -977,7 +995,10 @@ function Redaktion() {
                         status: p.status === "published" ? "draft" : "published",
                       }),
                     });
-                    load();
+                    if (response.ok) load();
+                    else if (!handleExpiredSession(response)) {
+                      setMessage("Der Beitragsstatus konnte nicht geändert werden.");
+                    }
                   }}
                 >
                   {p.status === "published" ? "Zurückziehen" : "Veröffentlichen"}
@@ -985,11 +1006,14 @@ function Redaktion() {
                 <button
                   onClick={async () => {
                     if (confirm("Diesen Beitrag wirklich löschen?")) {
-                      await fetch(`/api/admin/posts/${p.id}`, {
+                      const response = await fetch(`/api/admin/posts/${p.id}`, {
                         method: "DELETE",
                         credentials: "include",
                       });
-                      load();
+                      if (response.ok) load();
+                      else if (!handleExpiredSession(response)) {
+                        setMessage("Der Beitrag konnte nicht gelöscht werden.");
+                      }
                     }
                   }}
                 >

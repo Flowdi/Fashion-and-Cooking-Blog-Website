@@ -666,17 +666,27 @@ footer {
 .admin-list {
   margin-top: 40px;
 }
-.admin-list h2 {
+.admin-list-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 20px;
+}
+.admin-list-head h2 {
   font: 500 35px "Cormorant Garamond";
 }
-.admin-list > div {
+.admin-list-head p {
+  color: #91867a;
+  font-size: 12px;
+}
+.admin-post-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   border-top: 1px solid #3d3326;
   padding: 17px 0;
 }
-.admin-list > div > div {
+.admin-post-row > div {
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -684,6 +694,18 @@ footer {
 .admin-list span {
   font-size: 11px;
   color: #91867a;
+}
+.admin-list .status-badge {
+  align-self: flex-start;
+  border: 1px solid #55452e;
+  padding: 4px 8px;
+  color: #cfc5b8;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.admin-list .status-badge.published {
+  border-color: #56715e;
+  color: #9dc5a7;
 }
 .special-fields,
 .password-card {
@@ -701,7 +723,7 @@ footer {
   flex-wrap: wrap;
   gap: 10px;
 }
-.admin-list > div > .admin-actions {
+.admin-post-row > .admin-actions {
   flex-direction: row;
   align-items: center;
 }
@@ -914,7 +936,8 @@ footer {
     grid-template-columns: 1fr;
     gap: 8px;
   }
-  .admin-list > div {
+  .admin-list-head,
+  .admin-post-row {
     align-items: flex-start;
     flex-direction: column;
     gap: 14px;

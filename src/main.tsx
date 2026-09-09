@@ -935,16 +935,23 @@ function Redaktion() {
         {message && <p className="form-message">{message}</p>}
       </form>
       <section className="admin-list">
-        <h2>Gespeicherte Beiträge</h2>
+        <header className="admin-list-head">
+          <h2>Gespeicherte Beiträge</h2>
+          <p>
+            {adminPosts.filter((post) => post.status === "published").length} veröffentlicht ·{" "}
+            {adminPosts.filter((post) => post.status === "draft").length} Entwürfe
+          </p>
+        </header>
         {adminPosts.length === 0 ? (
           <p>Noch keine eigenen Beiträge vorhanden.</p>
         ) : (
           adminPosts.map((p) => (
-            <div key={p.id}>
+            <div className="admin-post-row" key={p.id}>
               <div>
                 <b>{p.title}</b>
-                <span>
-                  {p.category} · {p.status === "published" ? "Veröffentlicht" : "Entwurf"}
+                <span>{p.category}</span>
+                <span className={`status-badge ${p.status}`}>
+                  {p.status === "published" ? "Veröffentlicht" : "Entwurf"}
                 </span>
               </div>
               <div className="admin-actions">

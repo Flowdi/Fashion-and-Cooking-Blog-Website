@@ -28,6 +28,7 @@ Die Website verbindet ein öffentliches Online-Journal mit einem geschützten Re
 - Passwort direkt im Redaktionsbereich ändern
 - tägliche automatische Sicherung von Datenbank und Bildern
 - Statusprüfung von API und Datenbank über `/api/health`
+- RSS-Feed für veröffentlichte Beiträge unter `/api/feed.xml`
 
 Die derzeitigen öffentlichen Beispielbilder und Beispieltexte dienen als Platzhalter, bis eigene Inhalte verfügbar sind.
 

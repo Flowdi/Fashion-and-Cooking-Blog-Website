@@ -6,10 +6,12 @@ import sqlite3
 import time
 import uuid
 from datetime import datetime
+from email.utils import format_datetime
 from functools import wraps
 from pathlib import Path
+from xml.sax.saxutils import escape
 
-from flask import Flask, jsonify, request, session
+from flask import Flask, Response, jsonify, request, session
 from PIL import Image
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -193,7 +195,7 @@ def security_headers(response):
     response.headers["Permissions-Policy"] = "camera=(), geolocation=(), microphone=()"
     response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
     response.headers["X-Permitted-Cross-Domain-Policies"] = "none"
-    if request.path == "/api/posts" and request.method == "GET":
+    if request.path in ("/api/posts", "/api/feed.xml") and request.method == "GET":
         response.headers["Cache-Control"] = "public, max-age=60"
     else:
         response.headers["Cache-Control"] = "no-store"
@@ -207,6 +209,40 @@ def public_posts():
             "SELECT * FROM posts WHERE status='published' ORDER BY created_at DESC"
         ).fetchall()
     return jsonify([serialize(row) for row in rows])
+
+
+@app.get("/api/feed.xml")
+def rss_feed():
+    with conn() as db:
+        rows = db.execute(
+            "SELECT slug, category, title, excerpt, created_at FROM posts "
+            "WHERE status='published' ORDER BY created_at DESC LIMIT 30"
+        ).fetchall()
+    items = []
+    for row in rows:
+        url = f"https://nellos-world.de/beitrag/{row['slug']}"
+        published = format_datetime(datetime.fromisoformat(row["created_at"]).astimezone())
+        items.append(
+            "<item>"
+            f"<title>{escape(row['title'])}</title>"
+            f"<link>{url}</link>"
+            f"<guid isPermaLink=\"true\">{url}</guid>"
+            f"<pubDate>{published}</pubDate>"
+            f"<category>{escape(row['category'])}</category>"
+            f"<description>{escape(row['excerpt'])}</description>"
+            "</item>"
+        )
+    xml = (
+        '<?xml version="1.0" encoding="UTF-8"?>'
+        '<rss version="2.0"><channel>'
+        "<title>Nellis Fashion &amp; Food Blog</title>"
+        "<link>https://nellos-world.de/</link>"
+        "<description>Fashion-Projekte, Rezepte und persönliche Geschichten.</description>"
+        '<language>de</language>'
+        f"{''.join(items)}"
+        "</channel></rss>"
+    )
+    return Response(xml, content_type="application/rss+xml; charset=utf-8")
 
 
 @app.get("/api/health")

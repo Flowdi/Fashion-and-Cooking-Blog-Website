@@ -27,6 +27,7 @@ Die Website verbindet ein öffentliches Online-Journal mit einem geschützten Re
 - Verwaltung und Löschen eigener Beiträge
 - Passwort direkt im Redaktionsbereich ändern
 - tägliche automatische Sicherung von Datenbank und Bildern
+- Statusprüfung von API und Datenbank über `/api/health`
 
 Die derzeitigen öffentlichen Beispielbilder und Beispieltexte dienen als Platzhalter, bis eigene Inhalte verfügbar sind.
 

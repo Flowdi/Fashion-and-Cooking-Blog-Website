@@ -209,6 +209,16 @@ def public_posts():
     return jsonify([serialize(row) for row in rows])
 
 
+@app.get("/api/health")
+def health():
+    try:
+        with conn() as db:
+            db.execute("SELECT 1").fetchone()
+    except sqlite3.Error:
+        return jsonify(status="unavailable"), 503
+    return jsonify(status="ok")
+
+
 @app.post("/api/login")
 def login():
     ip = request.remote_addr or "unknown"

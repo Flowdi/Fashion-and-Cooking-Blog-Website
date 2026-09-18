@@ -1093,9 +1093,14 @@ function NotFound() {
 }
 function App() {
   const [path, setPath] = useState(location.pathname.replace(/\/$/, "") || "/");
-  const [lang, setLang] = useState<keyof typeof labels>(
-    () => (localStorage.getItem("lang") as keyof typeof labels) || "DE",
-  );
+  const [lang, setLang] = useState<keyof typeof labels>(() => {
+    try {
+      const saved = localStorage.getItem("lang");
+      return saved === "DE" || saved === "EN" || saved === "PL" ? saved : "DE";
+    } catch {
+      return "DE";
+    }
+  });
   const [livePosts, setLivePosts] = useState<Post[]>([]);
   useEffect(() => {
     fetch("/api/posts")
@@ -1108,7 +1113,13 @@ function App() {
     addEventListener("popstate", fn);
     return () => removeEventListener("popstate", fn);
   }, []);
-  useEffect(() => localStorage.setItem("lang", lang), [lang]);
+  useEffect(() => {
+    try {
+      localStorage.setItem("lang", lang);
+    } catch {
+      // Language selection remains usable when browser storage is disabled.
+    }
+  }, [lang]);
   const items = [...livePosts, ...posts];
   useEffect(() => {
     const article = items.find((post) => `/beitrag/${post.slug}` === path);

@@ -366,7 +366,8 @@ function Home({ lang, items }: { lang: keyof typeof labels; items: Post[] }) {
           ))}
         </div>
         <p className="note">
-          Die vorhandenen Beispielbeiträge können später im Redaktionsbereich ersetzt werden.
+          Die Sammlung enthält Beispielbeiträge. Eigene Beiträge werden im Redaktionsbereich
+          ergänzt.
         </p>
       </section>
       <AboutTeaser />
@@ -405,6 +406,7 @@ function Listing({ category, items }: { category: Category; items: Post[] }) {
   );
 }
 function Article({ post }: { post: Post }) {
+  const isExample = posts.includes(post);
   return (
     <main>
       <article className="article">
@@ -543,15 +545,17 @@ function Article({ post }: { post: Post }) {
                 />
               ))}
             </div>
-          ) : (
+          ) : isExample ? (
             <div className="image-placeholders">
               <div>Weiteres Bild</div>
               <div>Detailaufnahme</div>
             </div>
+          ) : null}
+          {isExample && (
+            <p className="editor-note">
+              Beispielbeitrag – Texte und Bilder werden später durch Nellis eigene Inhalte ersetzt.
+            </p>
           )}
-          <p className="editor-note">
-            Beispielbeitrag – Texte und Bilder werden später durch Nellis eigene Inhalte ersetzt.
-          </p>
           <SiteLink className="gold-link" to={`/${post.category.toLowerCase()}`}>
             ← Zurück zu {post.category}
           </SiteLink>

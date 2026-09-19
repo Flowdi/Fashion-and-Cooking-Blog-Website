@@ -282,7 +282,11 @@ function Header({
       <div className="lang" aria-label="Sprache wählen">
         {(["DE", "EN", "PL"] as const).map((item, i) => (
           <React.Fragment key={item}>
-            <button className={lang === item ? "active" : ""} onClick={() => setLang(item)}>
+            <button
+              className={lang === item ? "active" : ""}
+              aria-pressed={lang === item}
+              onClick={() => setLang(item)}
+            >
               {item}
             </button>
             {i < 2 && <span>·</span>}
@@ -1119,6 +1123,7 @@ function App() {
     return () => removeEventListener("popstate", fn);
   }, []);
   useEffect(() => {
+    document.documentElement.lang = lang.toLowerCase();
     try {
       localStorage.setItem("lang", lang);
     } catch {

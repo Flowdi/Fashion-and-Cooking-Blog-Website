@@ -1125,7 +1125,22 @@ function App() {
   useEffect(() => {
     fetch("/api/posts")
       .then((r) => (r.ok ? r.json() : []))
-      .then(setLivePosts)
+      .then((data: unknown) => {
+        if (!Array.isArray(data)) return;
+        setLivePosts(
+          data.filter(
+            (post): post is Post =>
+              post !== null &&
+              typeof post === "object" &&
+              typeof post.slug === "string" &&
+              typeof post.title === "string" &&
+              typeof post.excerpt === "string" &&
+              typeof post.image === "string" &&
+              Array.isArray(post.content) &&
+              (post.category === "Fashion" || post.category === "Cooking"),
+          ),
+        );
+      })
       .catch(() => {});
   }, []);
   useEffect(() => {

@@ -609,6 +609,14 @@ function Redaktion() {
   const [category, setCategory] = useState<Category>("Fashion");
   const [busy, setBusy] = useState(false);
   const [dirty, setDirty] = useState(false);
+  useEffect(() => {
+    if (!preview) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setPreview(null);
+    };
+    document.addEventListener("keydown", closeOnEscape);
+    return () => document.removeEventListener("keydown", closeOnEscape);
+  }, [preview]);
   async function load() {
     try {
       const response = await fetch("/api/admin/posts", { credentials: "include" });
@@ -1080,9 +1088,9 @@ function Redaktion() {
         </form>
       </section>
       {preview && (
-        <div className="preview-modal" role="dialog" aria-modal="true">
+        <div className="preview-modal" role="dialog" aria-modal="true" aria-label="Beitragsvorschau">
           <div>
-            <button className="preview-close" onClick={() => setPreview(null)}>
+            <button className="preview-close" autoFocus onClick={() => setPreview(null)}>
               Schließen
             </button>
             <Article post={preview} />

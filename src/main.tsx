@@ -242,6 +242,7 @@ function Header({
 }) {
   const [open, setOpen] = useState(false);
   const t = labels[lang];
+  useEffect(() => setOpen(false), [path]);
   useEffect(() => {
     if (!open) return;
     const closeOnEscape = (event: KeyboardEvent) => {
@@ -264,7 +265,7 @@ function Header({
       >
         ☰
       </button>
-      <nav id="main-navigation" className={open ? "open" : ""} onClick={() => setOpen(false)}>
+      <nav id="main-navigation" className={open ? "open" : ""}>
         <SiteLink to="/" current={path === "/"}>
           {t.home}
         </SiteLink>

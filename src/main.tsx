@@ -180,7 +180,7 @@ function navigate(path: string) {
   window.dispatchEvent(new PopStateEvent("popstate"));
   window.scrollTo(0, 0);
 }
-function updatePageMetadata(title: string, description: string, path: string) {
+function updatePageMetadata(title: string, description: string, path: string, indexable = true) {
   document.title = title;
   const canonicalUrl = `https://nellos-world.de${path === "/" ? "/" : path}`;
   const values = {
@@ -192,6 +192,9 @@ function updatePageMetadata(title: string, description: string, path: string) {
   Object.entries(values).forEach(([selector, content]) => {
     document.querySelector<HTMLMetaElement>(selector)?.setAttribute("content", content);
   });
+  document
+    .querySelector<HTMLMetaElement>('meta[name="robots"]')
+    ?.setAttribute("content", indexable ? "index, follow" : "noindex, follow");
   document
     .querySelector<HTMLLinkElement>('link[rel="canonical"]')
     ?.setAttribute("href", canonicalUrl);
@@ -1160,7 +1163,7 @@ function App() {
       "Seite nicht gefunden | Nellis Fashion & Food Blog",
       "Die gewünschte Seite wurde nicht gefunden.",
     ];
-    updatePageMetadata(title, description, path);
+    updatePageMetadata(title, description, path, path in metadata && path !== "/redaktion");
   }, [path, livePosts]);
   let page: React.ReactNode;
   if (path === "/") page = <Home lang={lang} items={items} />;

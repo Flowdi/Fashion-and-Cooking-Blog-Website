@@ -725,7 +725,11 @@ function Redaktion() {
               {busy ? "Wird angemeldet …" : "Anmelden"}
             </button>
           </form>
-          {message && <p className="form-message">{message}</p>}
+          {message && (
+            <p className="form-message" role="status" aria-live="polite">
+              {message}
+            </p>
+          )}
         </section>
       </main>
     );
@@ -980,7 +984,11 @@ function Redaktion() {
             </button>
           )}
         </div>
-        {message && <p className="form-message">{message}</p>}
+        {message && (
+          <p className="form-message" role="status" aria-live="polite">
+            {message}
+          </p>
+        )}
       </form>
       <section className="admin-list">
         <header className="admin-list-head">
@@ -1088,7 +1096,12 @@ function Redaktion() {
         </form>
       </section>
       {preview && (
-        <div className="preview-modal" role="dialog" aria-modal="true" aria-label="Beitragsvorschau">
+        <div
+          className="preview-modal"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Beitragsvorschau"
+        >
           <div>
             <button className="preview-close" autoFocus onClick={() => setPreview(null)}>
               Schließen

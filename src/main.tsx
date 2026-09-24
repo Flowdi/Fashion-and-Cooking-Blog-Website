@@ -1067,23 +1067,34 @@ function Redaktion() {
         <form
           onSubmit={async (e) => {
             e.preventDefault();
+            if (busy) return;
             const form = new FormData(e.currentTarget);
             if (form.get("new") !== form.get("confirm")) {
               setMessage("Die neuen Passwörter stimmen nicht überein.");
               return;
             }
-            const r = await fetch("/api/admin/password", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              credentials: "include",
-              body: JSON.stringify({ current: form.get("current"), new: form.get("new") }),
-            });
-            setMessage(
-              r.ok
-                ? "Passwort wurde geändert."
-                : "Passwortänderung fehlgeschlagen. Mindestens 12 Zeichen verwenden.",
-            );
-            if (r.ok) e.currentTarget.reset();
+            setBusy(true);
+            setMessage("Passwort wird geändert …");
+            try {
+              const response = await fetch("/api/admin/password", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify({ current: form.get("current"), new: form.get("new") }),
+              });
+              if (response.ok) {
+                e.currentTarget.reset();
+                setMessage("Passwort wurde geändert.");
+              } else if (!handleExpiredSession(response)) {
+                setMessage(
+                  "Passwortänderung fehlgeschlagen. Aktuelles Passwort prüfen und mindestens 12 Zeichen verwenden.",
+                );
+              }
+            } catch {
+              setMessage("Passwortänderung ist gerade nicht möglich. Bitte erneut versuchen.");
+            } finally {
+              setBusy(false);
+            }
           }}
         >
           <div className="form-grid">
@@ -1112,7 +1123,9 @@ function Redaktion() {
               />
             </label>
           </div>
-          <button type="submit">Passwort ändern</button>
+          <button type="submit" disabled={busy}>
+            {busy ? "Wird geändert …" : "Passwort ändern"}
+          </button>
         </form>
       </section>
       {preview && (

@@ -1068,6 +1068,10 @@ function Redaktion() {
           onSubmit={async (e) => {
             e.preventDefault();
             const form = new FormData(e.currentTarget);
+            if (form.get("new") !== form.get("confirm")) {
+              setMessage("Die neuen Passwörter stimmen nicht überein.");
+              return;
+            }
             const r = await fetch("/api/admin/password", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -1089,7 +1093,23 @@ function Redaktion() {
             </label>
             <label>
               Neues Passwort
-              <input name="new" type="password" minLength={12} required />
+              <input
+                name="new"
+                type="password"
+                minLength={12}
+                autoComplete="new-password"
+                required
+              />
+            </label>
+            <label>
+              Neues Passwort bestätigen
+              <input
+                name="confirm"
+                type="password"
+                minLength={12}
+                autoComplete="new-password"
+                required
+              />
             </label>
           </div>
           <button type="submit">Passwort ändern</button>

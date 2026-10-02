@@ -27,6 +27,8 @@ jobs:
           cache: npm
       - name: Pakete installieren
         run: npm ci
+      - name: Formatierung prüfen
+        run: npm run format:check
       - name: Website bauen
         run: npm run build -- --base=/Fashion-and-Cooking-Blog-Website/
       - name: GitHub Pages vorbereiten

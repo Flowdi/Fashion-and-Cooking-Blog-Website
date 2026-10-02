@@ -33,6 +33,7 @@ type Post = {
   title: string;
   excerpt: string;
   date: string;
+  publishedAt?: string;
   image: string;
   gallery?: string[];
   readTime: string;
@@ -60,6 +61,7 @@ const posts: Post[] = [
     title: "Zeitlose Basics für jeden Tag",
     excerpt: "Ein erster Beispielbeitrag über vielseitige Lieblingsteile und persönliche Looks.",
     date: "15. Mai 2026",
+    publishedAt: "2026-05-15",
     readTime: "4 Min.",
     image:
       "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=1400&q=85",
@@ -74,6 +76,7 @@ const posts: Post[] = [
     title: "Cremige Pilz-Pasta mit frischen Kräutern",
     excerpt: "Ein unkompliziertes Lieblingsgericht für gemütliche Abende.",
     date: "12. Mai 2026",
+    publishedAt: "2026-05-12",
     readTime: "25 Min.",
     image:
       "https://images.unsplash.com/photo-1473093295043-cdd812d0e601?auto=format&fit=crop&w=1400&q=85",
@@ -104,6 +107,7 @@ const posts: Post[] = [
     title: "Frühlingsideen, die bleiben",
     excerpt: "Farben, Stoffe und Formen für eine kleine saisonale Ideensammlung.",
     date: "8. Mai 2026",
+    publishedAt: "2026-05-08",
     readTime: "3 Min.",
     image:
       "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1200&q=85",
@@ -117,6 +121,7 @@ const posts: Post[] = [
     title: "Beerenkuchen mit Honig & Zitrone",
     excerpt: "Fruchtig, frisch und genau richtig für einen langen Sonntagnachmittag.",
     date: "5. Mai 2026",
+    publishedAt: "2026-05-05",
     readTime: "55 Min.",
     image:
       "https://images.unsplash.com/photo-1565958011703-44f9829ba187?auto=format&fit=crop&w=1200&q=85",
@@ -130,6 +135,7 @@ const posts: Post[] = [
     title: "Mein Guide für einen ruhigen Kleiderschrank",
     excerpt: "Weniger Teile, mehr Kombinationen und ein Stil, der wirklich zu einem passt.",
     date: "1. Mai 2026",
+    publishedAt: "2026-05-01",
     readTime: "5 Min.",
     image:
       "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1200&q=85",
@@ -143,6 +149,7 @@ const posts: Post[] = [
     title: "Lauwarmer Frühlingssalat",
     excerpt: "Knackiges Gemüse, frische Kräuter und ein leichtes Zitronendressing.",
     date: "28. April 2026",
+    publishedAt: "2026-04-28",
     readTime: "20 Min.",
     image:
       "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=1200&q=85",
@@ -305,7 +312,7 @@ function PostCard({ post }: { post: Post }) {
       <img src={post.image} alt={`Titelbild zu „${post.title}“`} loading="lazy" decoding="async" />
       <div className="post-meta">
         <b>{post.category}</b>
-        <time>{post.date}</time>
+        <time dateTime={post.publishedAt}>{post.date}</time>
       </div>
       <h3>{post.title}</h3>
       <p>{post.excerpt}</p>
@@ -423,7 +430,7 @@ function Article({ post }: { post: Post }) {
           <h1>{post.title}</h1>
           <p>{post.excerpt}</p>
           <div>
-            <time>{post.date}</time>
+            <time dateTime={post.publishedAt}>{post.date}</time>
             <i>◇</i>
             <span>{post.readTime}</span>
           </div>

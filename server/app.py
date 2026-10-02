@@ -121,6 +121,7 @@ def serialize(row):
         "patternSource": row["pattern_source"],
         "careInstructions": row["care_instructions"],
         "date": datetime.fromisoformat(row["created_at"]).strftime("%d.%m.%Y"),
+        "publishedAt": row["created_at"],
         "readTime": f"{max(2, len(' '.join(content).split()) // 180 + 1)} Min.",
     }
     if row["category"] == "Cooking":

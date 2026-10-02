@@ -615,6 +615,7 @@ function Redaktion() {
   const [preview, setPreview] = useState<any | null>(null);
   const [category, setCategory] = useState<Category>("Fashion");
   const [busy, setBusy] = useState(false);
+  const [pendingPostId, setPendingPostId] = useState<number | null>(null);
   const [dirty, setDirty] = useState(false);
   useEffect(() => {
     if (!preview) return;
@@ -708,6 +709,52 @@ function Redaktion() {
       setMessage("Speichern ist gerade nicht möglich. Die Eingaben bleiben erhalten.");
     } finally {
       setBusy(false);
+    }
+  }
+  async function changePostStatus(post: any) {
+    if (pendingPostId !== null) return;
+    setPendingPostId(post.id);
+    setMessage("Beitragsstatus wird aktualisiert …");
+    try {
+      const response = await fetch(`/api/admin/posts/${post.id}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          status: post.status === "published" ? "draft" : "published",
+        }),
+      });
+      if (response.ok) {
+        setMessage("Der Beitragsstatus wurde aktualisiert.");
+        await load();
+      } else if (!handleExpiredSession(response)) {
+        setMessage("Der Beitragsstatus konnte nicht geändert werden.");
+      }
+    } catch {
+      setMessage("Der Beitragsstatus konnte wegen eines Netzwerkfehlers nicht geändert werden.");
+    } finally {
+      setPendingPostId(null);
+    }
+  }
+  async function deletePost(post: any) {
+    if (pendingPostId !== null || !confirm("Diesen Beitrag wirklich löschen?")) return;
+    setPendingPostId(post.id);
+    setMessage("Beitrag wird gelöscht …");
+    try {
+      const response = await fetch(`/api/admin/posts/${post.id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (response.ok) {
+        setMessage("Der Beitrag wurde gelöscht.");
+        await load();
+      } else if (!handleExpiredSession(response)) {
+        setMessage("Der Beitrag konnte nicht gelöscht werden.");
+      }
+    } catch {
+      setMessage("Der Beitrag konnte wegen eines Netzwerkfehlers nicht gelöscht werden.");
+    } finally {
+      setPendingPostId(null);
     }
   }
   if (!logged)
@@ -1019,6 +1066,7 @@ function Redaktion() {
               </div>
               <div className="admin-actions">
                 <button
+                  disabled={pendingPostId !== null}
                   onClick={() => {
                     if (dirty && !confirm("Ungespeicherte Änderungen wirklich verwerfen?")) return;
                     setEditing(p);
@@ -1029,40 +1077,18 @@ function Redaktion() {
                 >
                   Bearbeiten
                 </button>
-                <button onClick={() => setPreview(p)}>Vorschau</button>
-                <button
-                  onClick={async () => {
-                    const response = await fetch(`/api/admin/posts/${p.id}/status`, {
-                      method: "PATCH",
-                      headers: { "Content-Type": "application/json" },
-                      credentials: "include",
-                      body: JSON.stringify({
-                        status: p.status === "published" ? "draft" : "published",
-                      }),
-                    });
-                    if (response.ok) load();
-                    else if (!handleExpiredSession(response)) {
-                      setMessage("Der Beitragsstatus konnte nicht geändert werden.");
-                    }
-                  }}
-                >
-                  {p.status === "published" ? "Zurückziehen" : "Veröffentlichen"}
+                <button disabled={pendingPostId !== null} onClick={() => setPreview(p)}>
+                  Vorschau
                 </button>
-                <button
-                  onClick={async () => {
-                    if (confirm("Diesen Beitrag wirklich löschen?")) {
-                      const response = await fetch(`/api/admin/posts/${p.id}`, {
-                        method: "DELETE",
-                        credentials: "include",
-                      });
-                      if (response.ok) load();
-                      else if (!handleExpiredSession(response)) {
-                        setMessage("Der Beitrag konnte nicht gelöscht werden.");
-                      }
-                    }
-                  }}
-                >
-                  Löschen
+                <button disabled={pendingPostId !== null} onClick={() => changePostStatus(p)}>
+                  {pendingPostId === p.id
+                    ? "Wird aktualisiert …"
+                    : p.status === "published"
+                      ? "Zurückziehen"
+                      : "Veröffentlichen"}
+                </button>
+                <button disabled={pendingPostId !== null} onClick={() => deletePost(p)}>
+                  {pendingPostId === p.id ? "Bitte warten …" : "Löschen"}
                 </button>
               </div>
             </div>

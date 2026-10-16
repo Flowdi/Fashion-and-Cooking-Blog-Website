@@ -20,6 +20,6 @@
   "devDependencies": {
     "@types/react": "latest",
     "@types/react-dom": "latest",
-    "prettier": "^3.9.6"
+    "prettier": "^3.9.10"
   }
 }

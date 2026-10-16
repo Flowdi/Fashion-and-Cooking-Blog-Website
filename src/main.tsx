@@ -620,11 +620,16 @@ function Redaktion() {
   const [dirty, setDirty] = useState(false);
   useEffect(() => {
     if (!preview) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") setPreview(null);
     };
     document.addEventListener("keydown", closeOnEscape);
-    return () => document.removeEventListener("keydown", closeOnEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", closeOnEscape);
+    };
   }, [preview]);
   async function load() {
     try {
@@ -1168,6 +1173,9 @@ function Redaktion() {
           role="dialog"
           aria-modal="true"
           aria-label="Beitragsvorschau"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setPreview(null);
+          }}
         >
           <div>
             <button className="preview-close" autoFocus onClick={() => setPreview(null)}>

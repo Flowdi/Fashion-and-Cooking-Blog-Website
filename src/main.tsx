@@ -186,6 +186,7 @@ function navigate(path: string) {
   history.pushState({}, "", path);
   window.dispatchEvent(new PopStateEvent("popstate"));
   window.scrollTo(0, 0);
+  requestAnimationFrame(() => document.getElementById("main-content")?.focus());
 }
 function updatePageMetadata(title: string, description: string, path: string, indexable = true) {
   document.title = title;
@@ -1283,7 +1284,9 @@ function App() {
         Zum Inhalt springen
       </a>
       <Header lang={lang} setLang={setLang} path={path} />
-      <div id="main-content">{page}</div>
+      <div id="main-content" tabIndex={-1}>
+        {page}
+      </div>
       <footer>
         <span>Nellis Fashion &amp; Food Blog</span>
         <span>Fashion · Food · Geschichten</span>

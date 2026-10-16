@@ -156,6 +156,13 @@ const posts: Post[] = [
     content: ["Ein weiterer Platzhalter für die spätere Rezeptesammlung."],
   },
 ];
+const fallbackImage =
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 800'%3E%3Crect width='1200' height='800' fill='%2317191a'/%3E%3Cpath d='M370 525l145-155 105 105 75-80 135 130H370z' fill='%234a3b2b'/%3E%3Ccircle cx='735' cy='285' r='45' fill='%23c99a49'/%3E%3Ctext x='600' y='650' text-anchor='middle' fill='%23f2e9dc' font-family='serif' font-size='42'%3ENellis Fashion %26 Food Blog%3C/text%3E%3C/svg%3E";
+
+function showFallbackImage(event: React.SyntheticEvent<HTMLImageElement>) {
+  event.currentTarget.onerror = null;
+  event.currentTarget.src = fallbackImage;
+}
 const labels = {
   DE: {
     home: "Startseite",
@@ -186,6 +193,7 @@ function navigate(path: string) {
   history.pushState({}, "", path);
   window.dispatchEvent(new PopStateEvent("popstate"));
   window.scrollTo(0, 0);
+  requestAnimationFrame(() => document.getElementById("main-content")?.focus());
 }
 function updatePageMetadata(title: string, description: string, path: string, indexable = true) {
   document.title = title;
@@ -309,7 +317,13 @@ function Header({
 function PostCard({ post }: { post: Post }) {
   return (
     <SiteLink className="post-card" to={`/beitrag/${post.slug}`}>
-      <img src={post.image} alt={`Titelbild zu „${post.title}“`} loading="lazy" decoding="async" />
+      <img
+        src={post.image}
+        alt={`Titelbild zu „${post.title}“`}
+        loading="lazy"
+        decoding="async"
+        onError={showFallbackImage}
+      />
       <div className="post-meta">
         <b>{post.category}</b>
         <time dateTime={post.publishedAt}>{post.date}</time>
@@ -440,6 +454,7 @@ function Article({ post }: { post: Post }) {
           src={post.image}
           alt={`Titelbild zu „${post.title}“`}
           fetchPriority="high"
+          onError={showFallbackImage}
         />
         <div className="article-body">
           {post.content.map((p, i) => (
@@ -556,6 +571,7 @@ function Article({ post }: { post: Post }) {
                   alt={`Galeriebild ${index + 1} zu „${post.title}“`}
                   loading="lazy"
                   decoding="async"
+                  onError={showFallbackImage}
                   key={image}
                 />
               ))}
@@ -619,11 +635,16 @@ function Redaktion() {
   const [dirty, setDirty] = useState(false);
   useEffect(() => {
     if (!preview) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") setPreview(null);
     };
     document.addEventListener("keydown", closeOnEscape);
-    return () => document.removeEventListener("keydown", closeOnEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", closeOnEscape);
+    };
   }, [preview]);
   async function load() {
     try {
@@ -882,7 +903,13 @@ function Redaktion() {
           <div className="gallery-manager">
             {editing.gallery.map((image: string) => (
               <label key={image}>
-                <img src={image} alt="Vorhandenes Galeriebild" loading="lazy" decoding="async" />
+                <img
+                  src={image}
+                  alt="Vorhandenes Galeriebild"
+                  loading="lazy"
+                  decoding="async"
+                  onError={showFallbackImage}
+                />
                 <span>
                   <input type="checkbox" name="remove_gallery" value={image} /> Bild entfernen
                 </span>
@@ -1167,6 +1194,9 @@ function Redaktion() {
           role="dialog"
           aria-modal="true"
           aria-label="Beitragsvorschau"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setPreview(null);
+          }}
         >
           <div>
             <button className="preview-close" autoFocus onClick={() => setPreview(null)}>
@@ -1283,7 +1313,9 @@ function App() {
         Zum Inhalt springen
       </a>
       <Header lang={lang} setLang={setLang} path={path} />
-      <div id="main-content">{page}</div>
+      <div id="main-content" tabIndex={-1}>
+        {page}
+      </div>
       <footer>
         <span>Nellis Fashion &amp; Food Blog</span>
         <span>Fashion · Food · Geschichten</span>

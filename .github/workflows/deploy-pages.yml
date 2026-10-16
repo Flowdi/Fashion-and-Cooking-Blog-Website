@@ -25,10 +25,16 @@ jobs:
         with:
           node-version: 22
           cache: npm
+      - name: Python einrichten
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
       - name: Pakete installieren
         run: npm ci
       - name: Formatierung prüfen
         run: npm run format:check
+      - name: Python-Syntax prüfen
+        run: python -m py_compile server/app.py
       - name: Website bauen
         run: npm run build -- --base=/Fashion-and-Cooking-Blog-Website/
       - name: GitHub Pages vorbereiten

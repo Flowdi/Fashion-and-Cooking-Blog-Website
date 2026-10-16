@@ -156,6 +156,13 @@ const posts: Post[] = [
     content: ["Ein weiterer Platzhalter für die spätere Rezeptesammlung."],
   },
 ];
+const fallbackImage =
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 800'%3E%3Crect width='1200' height='800' fill='%2317191a'/%3E%3Cpath d='M370 525l145-155 105 105 75-80 135 130H370z' fill='%234a3b2b'/%3E%3Ccircle cx='735' cy='285' r='45' fill='%23c99a49'/%3E%3Ctext x='600' y='650' text-anchor='middle' fill='%23f2e9dc' font-family='serif' font-size='42'%3ENellis Fashion %26 Food Blog%3C/text%3E%3C/svg%3E";
+
+function showFallbackImage(event: React.SyntheticEvent<HTMLImageElement>) {
+  event.currentTarget.onerror = null;
+  event.currentTarget.src = fallbackImage;
+}
 const labels = {
   DE: {
     home: "Startseite",
@@ -310,7 +317,13 @@ function Header({
 function PostCard({ post }: { post: Post }) {
   return (
     <SiteLink className="post-card" to={`/beitrag/${post.slug}`}>
-      <img src={post.image} alt={`Titelbild zu „${post.title}“`} loading="lazy" decoding="async" />
+      <img
+        src={post.image}
+        alt={`Titelbild zu „${post.title}“`}
+        loading="lazy"
+        decoding="async"
+        onError={showFallbackImage}
+      />
       <div className="post-meta">
         <b>{post.category}</b>
         <time dateTime={post.publishedAt}>{post.date}</time>
@@ -441,6 +454,7 @@ function Article({ post }: { post: Post }) {
           src={post.image}
           alt={`Titelbild zu „${post.title}“`}
           fetchPriority="high"
+          onError={showFallbackImage}
         />
         <div className="article-body">
           {post.content.map((p, i) => (
@@ -557,6 +571,7 @@ function Article({ post }: { post: Post }) {
                   alt={`Galeriebild ${index + 1} zu „${post.title}“`}
                   loading="lazy"
                   decoding="async"
+                  onError={showFallbackImage}
                   key={image}
                 />
               ))}
@@ -888,7 +903,13 @@ function Redaktion() {
           <div className="gallery-manager">
             {editing.gallery.map((image: string) => (
               <label key={image}>
-                <img src={image} alt="Vorhandenes Galeriebild" loading="lazy" decoding="async" />
+                <img
+                  src={image}
+                  alt="Vorhandenes Galeriebild"
+                  loading="lazy"
+                  decoding="async"
+                  onError={showFallbackImage}
+                />
                 <span>
                   <input type="checkbox" name="remove_gallery" value={image} /> Bild entfernen
                 </span>

@@ -158,10 +158,32 @@ const posts: Post[] = [
 ];
 const fallbackImage =
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 800'%3E%3Crect width='1200' height='800' fill='%2317191a'/%3E%3Cpath d='M370 525l145-155 105 105 75-80 135 130H370z' fill='%234a3b2b'/%3E%3Ccircle cx='735' cy='285' r='45' fill='%23c99a49'/%3E%3Ctext x='600' y='650' text-anchor='middle' fill='%23f2e9dc' font-family='serif' font-size='42'%3ENellis Fashion %26 Food Blog%3C/text%3E%3C/svg%3E";
+const allowedImageTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
+const maxSelectedUploadBytes = 38 * 1024 * 1024;
 
 function showFallbackImage(event: React.SyntheticEvent<HTMLImageElement>) {
   event.currentTarget.onerror = null;
   event.currentTarget.src = fallbackImage;
+}
+
+function validateSelectedImages(formData: FormData, existingGalleryCount: number) {
+  const files = [formData.get("image"), ...formData.getAll("gallery")].filter(
+    (value): value is File => value instanceof File && value.size > 0,
+  );
+  if (files.some((file) => !allowedImageTypes.has(file.type))) {
+    return "Bitte nur JPG-, PNG- oder WebP-Bilder auswählen.";
+  }
+  if (files.reduce((sum, file) => sum + file.size, 0) > maxSelectedUploadBytes) {
+    return "Die ausgewählten Bilder dürfen zusammen höchstens 38 MB groß sein.";
+  }
+  const removedGalleryCount = formData.getAll("remove_gallery").length;
+  const selectedGalleryCount = formData
+    .getAll("gallery")
+    .filter((value) => value instanceof File && value.size > 0).length;
+  if (Math.max(0, existingGalleryCount - removedGalleryCount) + selectedGalleryCount > 8) {
+    return "Pro Beitrag sind höchstens acht Galeriebilder möglich.";
+  }
+  return null;
 }
 const labels = {
   DE: {
@@ -707,14 +729,20 @@ function Redaktion() {
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (busy) return;
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    const uploadError = validateSelectedImages(formData, editing?.gallery?.length ?? 0);
+    if (uploadError) {
+      setMessage(uploadError);
+      return;
+    }
     setBusy(true);
     setMessage("Wird gespeichert …");
-    const form = e.currentTarget;
     try {
       const r = await fetch(editing ? `/api/admin/posts/${editing.id}` : "/api/admin/posts", {
         method: editing ? "PUT" : "POST",
         credentials: "include",
-        body: new FormData(form),
+        body: formData,
       });
       if (r.ok) {
         form.reset();

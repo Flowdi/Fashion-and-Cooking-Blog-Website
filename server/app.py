@@ -35,8 +35,9 @@ attempts = {}
 
 
 def conn():
-    db = sqlite3.connect(DB)
+    db = sqlite3.connect(DB, timeout=10)
     db.row_factory = sqlite3.Row
+    db.execute("PRAGMA busy_timeout=10000")
     return db
 
 
@@ -122,6 +123,7 @@ def serialize(row):
         "careInstructions": row["care_instructions"],
         "date": datetime.fromisoformat(row["created_at"]).strftime("%d.%m.%Y"),
         "publishedAt": row["created_at"],
+        "updatedAt": row["updated_at"] or row["created_at"],
         "readTime": f"{max(2, len(' '.join(content).split()) // 180 + 1)} Min.",
     }
     if row["category"] == "Cooking":
@@ -201,6 +203,11 @@ def security_headers(response):
     else:
         response.headers["Cache-Control"] = "no-store"
     return response
+
+
+@app.errorhandler(413)
+def request_too_large(_error):
+    return jsonify(error="request_too_large"), 413
 
 
 @app.get("/api/posts")

@@ -34,6 +34,7 @@ type Post = {
   excerpt: string;
   date: string;
   publishedAt?: string;
+  updatedAt?: string;
   image: string;
   gallery?: string[];
   readTime: string;
@@ -191,6 +192,16 @@ function validateSelectedImages(formData: FormData, existingGalleryCount: number
     return "Pro Beitrag sind höchstens acht Galeriebilder möglich.";
   }
   return null;
+}
+
+function formatAdminTimestamp(value?: string) {
+  if (!value) return "Zeitpunkt unbekannt";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "Zeitpunkt unbekannt";
+  return new Intl.DateTimeFormat("de-DE", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(date);
 }
 const labels = {
   DE: {
@@ -1126,6 +1137,7 @@ function Redaktion() {
               <div>
                 <b>{p.title}</b>
                 <span>{p.category}</span>
+                <span>Zuletzt geändert: {formatAdminTimestamp(p.updatedAt)}</span>
                 <span className={`status-badge ${p.status}`}>
                   {p.status === "published" ? "Veröffentlicht" : "Entwurf"}
                 </span>

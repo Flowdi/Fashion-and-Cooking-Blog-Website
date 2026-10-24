@@ -35,8 +35,9 @@ attempts = {}
 
 
 def conn():
-    db = sqlite3.connect(DB)
+    db = sqlite3.connect(DB, timeout=10)
     db.row_factory = sqlite3.Row
+    db.execute("PRAGMA busy_timeout=10000")
     return db
 
 

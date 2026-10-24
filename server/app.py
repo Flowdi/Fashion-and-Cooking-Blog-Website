@@ -204,6 +204,11 @@ def security_headers(response):
     return response
 
 
+@app.errorhandler(413)
+def request_too_large(_error):
+    return jsonify(error="request_too_large"), 413
+
+
 @app.get("/api/posts")
 def public_posts():
     with conn() as db:

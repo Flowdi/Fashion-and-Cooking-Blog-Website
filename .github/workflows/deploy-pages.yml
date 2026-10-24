@@ -38,7 +38,7 @@ jobs:
       - name: Website bauen
         run: npm run build -- --base=/Fashion-and-Cooking-Blog-Website/
       - name: GitHub Pages vorbereiten
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
       - name: Website-Paket hochladen
         uses: actions/upload-pages-artifact@v3
         with:

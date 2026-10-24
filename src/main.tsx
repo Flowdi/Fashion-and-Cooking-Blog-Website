@@ -160,6 +160,13 @@ const fallbackImage =
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 800'%3E%3Crect width='1200' height='800' fill='%2317191a'/%3E%3Cpath d='M370 525l145-155 105 105 75-80 135 130H370z' fill='%234a3b2b'/%3E%3Ccircle cx='735' cy='285' r='45' fill='%23c99a49'/%3E%3Ctext x='600' y='650' text-anchor='middle' fill='%23f2e9dc' font-family='serif' font-size='42'%3ENellis Fashion %26 Food Blog%3C/text%3E%3C/svg%3E";
 const allowedImageTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
 const maxSelectedUploadBytes = 38 * 1024 * 1024;
+const saveErrorMessages: Record<string, string> = {
+  "invalid image": "Mindestens eine Bilddatei ist beschädigt oder hat ein ungültiges Format.",
+  "missing image": "Bitte ein Titelbild auswählen.",
+  "content too long": "Mindestens ein Textfeld ist länger als erlaubt.",
+  "invalid fields": "Bitte alle Pflichtfelder vollständig ausfüllen.",
+  request_too_large: "Der Upload ist zu groß. Bitte kleinere oder weniger Bilder auswählen.",
+};
 
 function showFallbackImage(event: React.SyntheticEvent<HTMLImageElement>) {
   event.currentTarget.onerror = null;
@@ -752,7 +759,11 @@ function Redaktion() {
         setMessage(editing ? "Änderungen wurden gespeichert." : "Beitrag wurde gespeichert.");
         load();
       } else if (!handleExpiredSession(r)) {
-        setMessage("Speichern fehlgeschlagen. Bitte Eingaben und Bilder prüfen.");
+        const details = (await r.json().catch(() => ({}))) as { error?: string };
+        setMessage(
+          saveErrorMessages[details.error ?? ""] ??
+            "Speichern fehlgeschlagen. Bitte Eingaben und Bilder prüfen.",
+        );
       }
     } catch {
       setMessage("Speichern ist gerade nicht möglich. Die Eingaben bleiben erhalten.");

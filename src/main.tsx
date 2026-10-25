@@ -1370,7 +1370,7 @@ function App() {
       <footer>
         <span>Nellis Fashion &amp; Food Blog</span>
         <span>Fashion · Food · Geschichten</span>
-        <span>© 2026</span>
+        <span>© {new Date().getFullYear()}</span>
       </footer>
     </>
   );

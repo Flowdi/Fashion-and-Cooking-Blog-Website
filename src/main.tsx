@@ -669,6 +669,7 @@ function Redaktion() {
   const [adminPosts, setAdminPosts] = useState<any[]>([]);
   const [editing, setEditing] = useState<any | null>(null);
   const [preview, setPreview] = useState<any | null>(null);
+  const [adminQuery, setAdminQuery] = useState("");
   const [category, setCategory] = useState<Category>("Fashion");
   const [busy, setBusy] = useState(false);
   const [pendingPostId, setPendingPostId] = useState<number | null>(null);
@@ -858,6 +859,10 @@ function Redaktion() {
         </section>
       </main>
     );
+  const normalizedAdminQuery = adminQuery.trim().toLocaleLowerCase("de");
+  const visibleAdminPosts = adminPosts.filter((post) =>
+    `${post.title} ${post.category}`.toLocaleLowerCase("de").includes(normalizedAdminQuery),
+  );
   return (
     <main className="editor">
       <div className="editor-head">
@@ -1128,11 +1133,22 @@ function Redaktion() {
             {adminPosts.filter((post) => post.status === "published").length} veröffentlicht ·{" "}
             {adminPosts.filter((post) => post.status === "draft").length} Entwürfe
           </p>
+          <label className="admin-search">
+            <span>Beiträge durchsuchen</span>
+            <input
+              type="search"
+              value={adminQuery}
+              onChange={(event) => setAdminQuery(event.target.value)}
+              placeholder="Titel oder Kategorie"
+            />
+          </label>
         </header>
         {adminPosts.length === 0 ? (
           <p>Noch keine eigenen Beiträge vorhanden.</p>
+        ) : visibleAdminPosts.length === 0 ? (
+          <p>Keine Beiträge passen zu dieser Suche.</p>
         ) : (
-          adminPosts.map((p) => (
+          visibleAdminPosts.map((p) => (
             <div className="admin-post-row" key={p.id}>
               <div>
                 <b>{p.title}</b>

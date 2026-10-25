@@ -254,6 +254,29 @@ function updatePageMetadata(title: string, description: string, path: string, in
     .querySelector<HTMLLinkElement>('link[rel="canonical"]')
     ?.setAttribute("href", canonicalUrl);
 }
+function updateArticleStructuredData(post?: Post) {
+  const existing = document.querySelector<HTMLScriptElement>("#article-structured-data");
+  if (!post) {
+    existing?.remove();
+    return;
+  }
+  const script = existing ?? document.createElement("script");
+  script.id = "article-structured-data";
+  script.type = "application/ld+json";
+  script.textContent = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: post.title,
+    description: post.excerpt,
+    image: post.image,
+    datePublished: post.publishedAt,
+    dateModified: post.updatedAt ?? post.publishedAt,
+    mainEntityOfPage: `https://nellos-world.de/beitrag/${post.slug}`,
+    author: { "@type": "Person", name: "Nelli" },
+    publisher: { "@type": "Organization", name: "Nellis Fashion & Food Blog" },
+  });
+  if (!existing) document.head.append(script);
+}
 function SiteLink({
   to,
   className,
@@ -1337,8 +1360,10 @@ function App() {
     const article = items.find((post) => `/beitrag/${post.slug}` === path);
     if (article) {
       updatePageMetadata(`${article.title} | Nellis Fashion & Food Blog`, article.excerpt, path);
+      updateArticleStructuredData(article);
       return;
     }
+    updateArticleStructuredData();
     const metadata: Record<string, [string, string]> = {
       "/": [
         "Nellis Fashion & Food Blog",

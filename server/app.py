@@ -12,7 +12,7 @@ from pathlib import Path
 from xml.sax.saxutils import escape
 
 from flask import Flask, Response, jsonify, request, session
-from PIL import Image
+from PIL import Image, ImageOps
 from werkzeug.security import check_password_hash, generate_password_hash
 
 DATA_DIR = Path(os.environ.get("NELLOS_DATA_DIR", "/var/lib/nellos-world"))
@@ -168,8 +168,11 @@ def save_image(file):
     try:
         with Image.open(path) as image:
             image.verify()
-        with Image.open(path) as image:
+        with Image.open(path) as source:
+            image = ImageOps.exif_transpose(source)
             image.thumbnail((2400, 2400))
+            if extension in (".jpg", ".jpeg") and image.mode != "RGB":
+                image = image.convert("RGB")
             image.save(path, optimize=True, quality=86)
     except Exception:
         path.unlink(missing_ok=True)

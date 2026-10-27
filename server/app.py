@@ -203,6 +203,9 @@ def security_headers(response):
     response.headers["X-Permitted-Cross-Domain-Policies"] = "none"
     if request.path in ("/api/posts", "/api/feed.xml") and request.method == "GET":
         response.headers["Cache-Control"] = "public, max-age=60"
+        if response.status_code == 200:
+            response.add_etag()
+            response.make_conditional(request)
     else:
         response.headers["Cache-Control"] = "no-store"
     return response

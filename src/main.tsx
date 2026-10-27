@@ -235,14 +235,30 @@ function navigate(path: string) {
   window.scrollTo(0, 0);
   requestAnimationFrame(() => document.getElementById("main-content")?.focus());
 }
-function updatePageMetadata(title: string, description: string, path: string, indexable = true) {
+const defaultSocialImage =
+  "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=1200&q=85";
+
+function updatePageMetadata(
+  title: string,
+  description: string,
+  path: string,
+  indexable = true,
+  image = defaultSocialImage,
+  type = "website",
+) {
   document.title = title;
   const canonicalUrl = `https://nellos-world.de${path === "/" ? "/" : path}`;
+  const imageUrl = image.startsWith("http") ? image : `https://nellos-world.de${image}`;
   const values = {
     'meta[name="description"]': description,
+    'meta[property="og:type"]': type,
     'meta[property="og:title"]': title,
     'meta[property="og:description"]': description,
     'meta[property="og:url"]': canonicalUrl,
+    'meta[property="og:image"]': imageUrl,
+    'meta[name="twitter:title"]': title,
+    'meta[name="twitter:description"]': description,
+    'meta[name="twitter:image"]': imageUrl,
   };
   Object.entries(values).forEach(([selector, content]) => {
     document.querySelector<HTMLMetaElement>(selector)?.setAttribute("content", content);
@@ -1359,7 +1375,14 @@ function App() {
   useEffect(() => {
     const article = items.find((post) => `/beitrag/${post.slug}` === path);
     if (article) {
-      updatePageMetadata(`${article.title} | Nellis Fashion & Food Blog`, article.excerpt, path);
+      updatePageMetadata(
+        `${article.title} | Nellis Fashion & Food Blog`,
+        article.excerpt,
+        path,
+        true,
+        article.image,
+        "article",
+      );
       updateArticleStructuredData(article);
       return;
     }

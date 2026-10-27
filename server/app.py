@@ -226,9 +226,15 @@ def public_posts():
 def rss_feed():
     with conn() as db:
         rows = db.execute(
-            "SELECT slug, category, title, excerpt, created_at FROM posts "
+            "SELECT slug, category, title, excerpt, created_at, updated_at FROM posts "
             "WHERE status='published' ORDER BY created_at DESC LIMIT 30"
         ).fetchall()
+    latest_change = rows[0]["updated_at"] or rows[0]["created_at"] if rows else None
+    last_build = format_datetime(
+        datetime.fromisoformat(latest_change).astimezone()
+        if latest_change
+        else datetime.now().astimezone()
+    )
     items = []
     for row in rows:
         url = f"https://nellos-world.de/beitrag/{row['slug']}"
@@ -245,11 +251,13 @@ def rss_feed():
         )
     xml = (
         '<?xml version="1.0" encoding="UTF-8"?>'
-        '<rss version="2.0"><channel>'
+        '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel>'
         "<title>Nellis Fashion &amp; Food Blog</title>"
         "<link>https://nellos-world.de/</link>"
+        '<atom:link href="https://nellos-world.de/api/feed.xml" rel="self" type="application/rss+xml" />'
         "<description>Fashion-Projekte, Rezepte und persönliche Geschichten.</description>"
         '<language>de</language>'
+        f"<lastBuildDate>{last_build}</lastBuildDate>"
         f"{''.join(items)}"
         "</channel></rss>"
     )

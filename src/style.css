@@ -689,7 +689,8 @@ footer {
   display: block;
   margin-bottom: 6px;
 }
-.admin-search input {
+.admin-search input,
+.admin-search select {
   padding: 9px 11px;
 }
 .admin-post-row {

@@ -709,6 +709,7 @@ function Redaktion() {
   const [editing, setEditing] = useState<any | null>(null);
   const [preview, setPreview] = useState<any | null>(null);
   const [adminQuery, setAdminQuery] = useState("");
+  const [adminStatus, setAdminStatus] = useState<"all" | "published" | "draft">("all");
   const [category, setCategory] = useState<Category>("Fashion");
   const [busy, setBusy] = useState(false);
   const [pendingPostId, setPendingPostId] = useState<number | null>(null);
@@ -899,8 +900,10 @@ function Redaktion() {
       </main>
     );
   const normalizedAdminQuery = adminQuery.trim().toLocaleLowerCase("de");
-  const visibleAdminPosts = adminPosts.filter((post) =>
-    `${post.title} ${post.category}`.toLocaleLowerCase("de").includes(normalizedAdminQuery),
+  const visibleAdminPosts = adminPosts.filter(
+    (post) =>
+      `${post.title} ${post.category}`.toLocaleLowerCase("de").includes(normalizedAdminQuery) &&
+      (adminStatus === "all" || post.status === adminStatus),
   );
   return (
     <main className="editor">
@@ -1180,6 +1183,19 @@ function Redaktion() {
               onChange={(event) => setAdminQuery(event.target.value)}
               placeholder="Titel oder Kategorie"
             />
+          </label>
+          <label className="admin-search">
+            <span>Status filtern</span>
+            <select
+              value={adminStatus}
+              onChange={(event) =>
+                setAdminStatus(event.target.value as "all" | "published" | "draft")
+              }
+            >
+              <option value="all">Alle Beiträge</option>
+              <option value="published">Veröffentlicht</option>
+              <option value="draft">Entwürfe</option>
+            </select>
           </label>
         </header>
         {adminPosts.length === 0 ? (

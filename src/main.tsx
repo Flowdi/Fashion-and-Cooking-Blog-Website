@@ -913,7 +913,9 @@ function Redaktion() {
           <h1>{editing ? "Beitrag bearbeiten" : "Neuer Beitrag"}</h1>
         </div>
         <button
+          disabled={busy || pendingPostId !== null}
           onClick={async () => {
+            if (dirty && !confirm("Ungespeicherte Änderungen verwerfen und abmelden?")) return;
             try {
               const response = await fetch("/api/logout", {
                 method: "POST",
@@ -921,6 +923,7 @@ function Redaktion() {
               });
               if (!response.ok) throw new Error();
               setLogged(false);
+              setDirty(false);
               setMessage("");
             } catch {
               setMessage("Abmelden fehlgeschlagen. Bitte erneut versuchen.");

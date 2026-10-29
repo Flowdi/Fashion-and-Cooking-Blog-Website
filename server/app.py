@@ -35,6 +35,18 @@ app.config.update(
 attempts = {}
 
 
+def prune_login_attempts(now):
+    cutoff = now - 900
+    for address, timestamps in list(attempts.items()):
+        recent = [timestamp for timestamp in timestamps if timestamp > cutoff]
+        if recent:
+            attempts[address] = recent
+        else:
+            attempts.pop(address, None)
+    while len(attempts) > 5000:
+        attempts.pop(next(iter(attempts)))
+
+
 def conn():
     db = sqlite3.connect(DB, timeout=10)
     db.row_factory = sqlite3.Row
@@ -284,6 +296,7 @@ def health():
 def login():
     ip = request.remote_addr or "unknown"
     now = time.time()
+    prune_login_attempts(now)
     recent = [attempt for attempt in attempts.get(ip, []) if now - attempt < 900]
     attempts[ip] = recent
     if len(recent) >= 8:

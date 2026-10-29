@@ -21,6 +21,7 @@ UPLOAD_DIR = Path(
 )
 DB = DATA_DIR / "posts.db"
 ALLOWED_IMAGES = {".jpg", ".jpeg", ".png", ".webp"}
+MAX_IMAGE_PIXELS = 40_000_000
 
 app = Flask(__name__)
 app.secret_key = os.environ["NELLOS_SESSION_SECRET"]
@@ -169,6 +170,8 @@ def save_image(file):
         with Image.open(path) as image:
             image.verify()
         with Image.open(path) as source:
+            if source.width * source.height > MAX_IMAGE_PIXELS:
+                raise ValueError("image dimensions too large")
             image = ImageOps.exif_transpose(source)
             image.thumbnail((2400, 2400))
             if extension in (".jpg", ".jpeg") and image.mode != "RGB":

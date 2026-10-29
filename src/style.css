@@ -693,6 +693,10 @@ footer {
 .admin-search select {
   padding: 9px 11px;
 }
+.admin-filter-reset {
+  align-self: flex-end;
+  white-space: nowrap;
+}
 .admin-post-row {
   display: flex;
   align-items: center;

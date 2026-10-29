@@ -1176,7 +1176,8 @@ function Redaktion() {
           <h2>Gespeicherte Beiträge</h2>
           <p>
             {adminPosts.filter((post) => post.status === "published").length} veröffentlicht ·{" "}
-            {adminPosts.filter((post) => post.status === "draft").length} Entwürfe
+            {adminPosts.filter((post) => post.status === "draft").length} Entwürfe ·{" "}
+            {visibleAdminPosts.length} angezeigt
           </p>
           <label className="admin-search">
             <span>Beiträge durchsuchen</span>
@@ -1200,6 +1201,18 @@ function Redaktion() {
               <option value="draft">Entwürfe</option>
             </select>
           </label>
+          {(adminQuery || adminStatus !== "all") && (
+            <button
+              className="admin-filter-reset"
+              type="button"
+              onClick={() => {
+                setAdminQuery("");
+                setAdminStatus("all");
+              }}
+            >
+              Filter zurücksetzen
+            </button>
+          )}
         </header>
         {adminPosts.length === 0 ? (
           <p>Noch keine eigenen Beiträge vorhanden.</p>

@@ -327,6 +327,7 @@ def admin_posts():
 
 
 def post_values(existing=None):
+    obsolete_uploads = []
     title = request.form.get("title", "").strip()
     category = request.form.get("category", "")
     excerpt = request.form.get("excerpt", "").strip()
@@ -343,7 +344,7 @@ def post_values(existing=None):
     if image_file and image_file.filename:
         replacement = save_image(image_file)
         if existing:
-            remove_upload(image)
+            obsolete_uploads.append(image)
         image = replacement
     if not image:
         raise ValueError("missing image")
@@ -352,11 +353,10 @@ def post_values(existing=None):
     for file in request.files.getlist("gallery")[:available_gallery_slots]:
         if file and file.filename:
             gallery.append(save_image(file))
-    removed = set(request.form.getlist("remove_gallery"))
-    for url in removed:
-        remove_upload(url)
+    removed = set(request.form.getlist("remove_gallery")) & set(gallery)
+    obsolete_uploads.extend(removed)
     gallery = [url for url in gallery if url not in removed][:8]
-    return {
+    values = {
         "category": category,
         "title": title,
         "excerpt": excerpt,
@@ -387,13 +387,14 @@ def post_values(existing=None):
         "care_instructions": request.form.get("care_instructions", "").strip()[:500],
         "updated_at": datetime.now().isoformat(),
     }
+    return values, obsolete_uploads
 
 
 @app.post("/api/admin/posts")
 @auth
 def create_post():
     try:
-        values = post_values()
+        values, _obsolete_uploads = post_values()
     except ValueError as error:
         return jsonify(error=str(error)), 400
     slug = f"{slugify(values['title'])}-{secrets.token_hex(3)}"
@@ -415,7 +416,7 @@ def update_post(post_id):
         if not existing:
             return jsonify(error="missing"), 404
         try:
-            values = post_values(existing)
+            values, obsolete_uploads = post_values(existing)
         except ValueError as error:
             return jsonify(error=str(error)), 400
         assignments = ",".join(f"{column}=?" for column in values)
@@ -423,6 +424,8 @@ def update_post(post_id):
             f"UPDATE posts SET {assignments} WHERE id=?",
             [*values.values(), post_id],
         )
+    for upload in obsolete_uploads:
+        remove_upload(upload)
     return jsonify(ok=True)
 
 

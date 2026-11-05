@@ -717,6 +717,14 @@ function Redaktion() {
   const [busy, setBusy] = useState(false);
   const [pendingPostId, setPendingPostId] = useState<number | null>(null);
   const [dirty, setDirty] = useState(false);
+  const [fieldLengths, setFieldLengths] = useState({ title: 0, excerpt: 0, content: 0 });
+  useEffect(() => {
+    setFieldLengths({
+      title: editing?.title?.length ?? 0,
+      excerpt: editing?.excerpt?.length ?? 0,
+      content: editing?.content?.join("\n\n").length ?? 0,
+    });
+  }, [editing]);
   useEffect(() => {
     if (!preview) return;
     const previousOverflow = document.body.style.overflow;
@@ -951,7 +959,19 @@ function Redaktion() {
         <div className="form-grid">
           <label>
             Titel
-            <input name="title" required maxLength={140} defaultValue={editing?.title ?? ""} />
+            <input
+              name="title"
+              required
+              maxLength={140}
+              defaultValue={editing?.title ?? ""}
+              onInput={(event) =>
+                setFieldLengths((lengths) => ({
+                  ...lengths,
+                  title: event.currentTarget.value.length,
+                }))
+              }
+            />
+            <small className="field-count">{fieldLengths.title}/140 Zeichen</small>
           </label>
           <label>
             Kategorie
@@ -973,7 +993,14 @@ function Redaktion() {
             required
             maxLength={300}
             defaultValue={editing?.excerpt ?? ""}
+            onInput={(event) =>
+              setFieldLengths((lengths) => ({
+                ...lengths,
+                excerpt: event.currentTarget.value.length,
+              }))
+            }
           />
+          <small className="field-count">{fieldLengths.excerpt}/300 Zeichen</small>
         </label>
         <label>
           Beitragstext
@@ -984,7 +1011,14 @@ function Redaktion() {
             maxLength={30000}
             placeholder="Absätze werden durch Leerzeilen getrennt."
             defaultValue={editing?.content?.join("\n\n") ?? ""}
+            onInput={(event) =>
+              setFieldLengths((lengths) => ({
+                ...lengths,
+                content: event.currentTarget.value.length,
+              }))
+            }
           />
+          <small className="field-count">{fieldLengths.content}/30.000 Zeichen</small>
         </label>
         <div className="form-grid">
           <label>

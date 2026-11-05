@@ -666,6 +666,12 @@ footer {
   color: #d9b875;
   font-size: 12px;
 }
+.field-count {
+  align-self: flex-end;
+  color: #91867a;
+  font-size: 11px;
+  font-weight: 400;
+}
 .admin-list {
   margin-top: 40px;
 }

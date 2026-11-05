@@ -288,8 +288,10 @@ def health():
         with conn() as db:
             db.execute("SELECT 1").fetchone()
     except sqlite3.Error:
-        return jsonify(status="unavailable"), 503
-    return jsonify(status="ok")
+        return jsonify(status="unavailable", database="unavailable", uploads="unknown"), 503
+    if not UPLOAD_DIR.is_dir() or not os.access(UPLOAD_DIR, os.W_OK):
+        return jsonify(status="unavailable", database="ok", uploads="unavailable"), 503
+    return jsonify(status="ok", database="ok", uploads="ok")
 
 
 @app.post("/api/login")

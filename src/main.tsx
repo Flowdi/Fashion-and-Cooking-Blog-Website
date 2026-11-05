@@ -710,6 +710,9 @@ function Redaktion() {
   const [preview, setPreview] = useState<any | null>(null);
   const [adminQuery, setAdminQuery] = useState("");
   const [adminStatus, setAdminStatus] = useState<"all" | "published" | "draft">("all");
+  const [adminSort, setAdminSort] = useState<"updated-desc" | "updated-asc" | "title">(
+    "updated-desc",
+  );
   const [category, setCategory] = useState<Category>("Fashion");
   const [busy, setBusy] = useState(false);
   const [pendingPostId, setPendingPostId] = useState<number | null>(null);
@@ -900,11 +903,17 @@ function Redaktion() {
       </main>
     );
   const normalizedAdminQuery = adminQuery.trim().toLocaleLowerCase("de");
-  const visibleAdminPosts = adminPosts.filter(
-    (post) =>
-      `${post.title} ${post.category}`.toLocaleLowerCase("de").includes(normalizedAdminQuery) &&
-      (adminStatus === "all" || post.status === adminStatus),
-  );
+  const visibleAdminPosts = adminPosts
+    .filter(
+      (post) =>
+        `${post.title} ${post.category}`.toLocaleLowerCase("de").includes(normalizedAdminQuery) &&
+        (adminStatus === "all" || post.status === adminStatus),
+    )
+    .sort((left, right) => {
+      if (adminSort === "title") return left.title.localeCompare(right.title, "de");
+      const difference = new Date(left.updatedAt).getTime() - new Date(right.updatedAt).getTime();
+      return adminSort === "updated-asc" ? difference : -difference;
+    });
   return (
     <main className="editor">
       <div className="editor-head">
@@ -1199,6 +1208,19 @@ function Redaktion() {
               <option value="all">Alle Beiträge</option>
               <option value="published">Veröffentlicht</option>
               <option value="draft">Entwürfe</option>
+            </select>
+          </label>
+          <label className="admin-search">
+            <span>Sortierung</span>
+            <select
+              value={adminSort}
+              onChange={(event) =>
+                setAdminSort(event.target.value as "updated-desc" | "updated-asc" | "title")
+              }
+            >
+              <option value="updated-desc">Zuletzt geändert</option>
+              <option value="updated-asc">Älteste Änderung</option>
+              <option value="title">Titel A–Z</option>
             </select>
           </label>
           {(adminQuery || adminStatus !== "all") && (

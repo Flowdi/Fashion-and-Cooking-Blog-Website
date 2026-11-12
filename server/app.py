@@ -328,7 +328,9 @@ def admin_posts():
     return jsonify([serialize(row) for row in rows])
 
 
-def post_values(existing=None):
+def post_values(existing=None, created_uploads=None):
+    if created_uploads is None:
+        created_uploads = []
     obsolete_uploads = []
     title = request.form.get("title", "").strip()
     category = request.form.get("category", "")
@@ -345,6 +347,7 @@ def post_values(existing=None):
     image = existing["image"] if existing else ""
     if image_file and image_file.filename:
         replacement = save_image(image_file)
+        created_uploads.append(replacement)
         if existing:
             obsolete_uploads.append(image)
         image = replacement
@@ -354,7 +357,9 @@ def post_values(existing=None):
     available_gallery_slots = max(0, 8 - len(gallery))
     for file in request.files.getlist("gallery")[:available_gallery_slots]:
         if file and file.filename:
-            gallery.append(save_image(file))
+            gallery_image = save_image(file)
+            created_uploads.append(gallery_image)
+            gallery.append(gallery_image)
     removed = set(request.form.getlist("remove_gallery")) & set(gallery)
     obsolete_uploads.extend(removed)
     gallery = [url for url in gallery if url not in removed][:8]
@@ -395,37 +400,53 @@ def post_values(existing=None):
 @app.post("/api/admin/posts")
 @auth
 def create_post():
+    created_uploads = []
     try:
-        values, _obsolete_uploads = post_values()
+        values, _obsolete_uploads = post_values(created_uploads=created_uploads)
     except ValueError as error:
+        for upload in created_uploads:
+            remove_upload(upload)
         return jsonify(error=str(error)), 400
     slug = f"{slugify(values['title'])}-{secrets.token_hex(3)}"
     columns = ["slug", *values.keys(), "created_at"]
     payload = [slug, *values.values(), datetime.now().isoformat()]
-    with conn() as db:
-        db.execute(
-            f"INSERT INTO posts({','.join(columns)}) VALUES({','.join('?' for _ in columns)})",
-            payload,
-        )
+    try:
+        with conn() as db:
+            db.execute(
+                f"INSERT INTO posts({','.join(columns)}) VALUES({','.join('?' for _ in columns)})",
+                payload,
+            )
+    except sqlite3.Error:
+        for upload in created_uploads:
+            remove_upload(upload)
+        return jsonify(error="database unavailable"), 503
     return jsonify(ok=True, slug=slug), 201
 
 
 @app.put("/api/admin/posts/<int:post_id>")
 @auth
 def update_post(post_id):
-    with conn() as db:
-        existing = db.execute("SELECT * FROM posts WHERE id=?", (post_id,)).fetchone()
-        if not existing:
-            return jsonify(error="missing"), 404
-        try:
-            values, obsolete_uploads = post_values(existing)
-        except ValueError as error:
-            return jsonify(error=str(error)), 400
-        assignments = ",".join(f"{column}=?" for column in values)
-        db.execute(
-            f"UPDATE posts SET {assignments} WHERE id=?",
-            [*values.values(), post_id],
-        )
+    created_uploads = []
+    try:
+        with conn() as db:
+            existing = db.execute("SELECT * FROM posts WHERE id=?", (post_id,)).fetchone()
+            if not existing:
+                return jsonify(error="missing"), 404
+            try:
+                values, obsolete_uploads = post_values(existing, created_uploads)
+            except ValueError as error:
+                for upload in created_uploads:
+                    remove_upload(upload)
+                return jsonify(error=str(error)), 400
+            assignments = ",".join(f"{column}=?" for column in values)
+            db.execute(
+                f"UPDATE posts SET {assignments} WHERE id=?",
+                [*values.values(), post_id],
+            )
+    except sqlite3.Error:
+        for upload in created_uploads:
+            remove_upload(upload)
+        return jsonify(error="database unavailable"), 503
     for upload in obsolete_uploads:
         remove_upload(upload)
     return jsonify(ok=True)

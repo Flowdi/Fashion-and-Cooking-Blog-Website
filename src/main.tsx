@@ -59,6 +59,29 @@ type AdminPost = Post & {
   id: number;
   status: "draft" | "published";
 };
+
+function isPost(value: unknown): value is Post {
+  if (value === null || typeof value !== "object") return false;
+  const post = value as Partial<Post>;
+  return (
+    typeof post.slug === "string" &&
+    typeof post.title === "string" &&
+    typeof post.excerpt === "string" &&
+    typeof post.image === "string" &&
+    Array.isArray(post.content) &&
+    (post.category === "Fashion" || post.category === "Cooking")
+  );
+}
+
+function isAdminPost(value: unknown): value is AdminPost {
+  if (!isPost(value)) return false;
+  const post = value as Partial<AdminPost>;
+  return (
+    typeof post.id === "number" &&
+    Number.isInteger(post.id) &&
+    (post.status === "draft" || post.status === "published")
+  );
+}
 const posts: Post[] = [
   {
     slug: "zeitlose-basics",
@@ -750,7 +773,9 @@ function Redaktion() {
         return;
       }
       if (!response.ok) throw new Error();
-      setAdminPosts(await response.json());
+      const data: unknown = await response.json();
+      if (!Array.isArray(data)) throw new Error();
+      setAdminPosts(data.filter(isAdminPost));
       setLogged(true);
     } catch {
       setMessage("Die Beitragsliste konnte nicht geladen werden. Bitte erneut versuchen.");
@@ -1436,19 +1461,7 @@ function App() {
       .then((r) => (r.ok ? r.json() : []))
       .then((data: unknown) => {
         if (!Array.isArray(data)) return;
-        setLivePosts(
-          data.filter(
-            (post): post is Post =>
-              post !== null &&
-              typeof post === "object" &&
-              typeof post.slug === "string" &&
-              typeof post.title === "string" &&
-              typeof post.excerpt === "string" &&
-              typeof post.image === "string" &&
-              Array.isArray(post.content) &&
-              (post.category === "Fashion" || post.category === "Cooking"),
-          ),
-        );
+        setLivePosts(data.filter(isPost));
       })
       .catch(() => {});
   }, []);

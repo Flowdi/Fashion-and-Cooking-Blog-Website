@@ -672,6 +672,11 @@ footer {
   font-size: 11px;
   font-weight: 400;
 }
+.upload-summary {
+  margin: -6px 0 4px;
+  color: #d9b875;
+  font-size: 12px;
+}
 .admin-list {
   margin-top: 40px;
 }

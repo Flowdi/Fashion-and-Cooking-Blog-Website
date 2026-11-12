@@ -745,12 +745,17 @@ function Redaktion() {
   const [pendingPostId, setPendingPostId] = useState<number | null>(null);
   const [dirty, setDirty] = useState(false);
   const [fieldLengths, setFieldLengths] = useState({ title: 0, excerpt: 0, content: 0 });
+  const [selectedFiles, setSelectedFiles] = useState<{ image: File[]; gallery: File[] }>({
+    image: [],
+    gallery: [],
+  });
   useEffect(() => {
     setFieldLengths({
       title: editing?.title?.length ?? 0,
       excerpt: editing?.excerpt?.length ?? 0,
       content: editing?.content?.join("\n\n").length ?? 0,
     });
+    setSelectedFiles({ image: [], gallery: [] });
   }, [editing]);
   useEffect(() => {
     if (!preview) return;
@@ -848,6 +853,7 @@ function Redaktion() {
         setDirty(false);
         setEditing(null);
         setCategory("Fashion");
+        setSelectedFiles({ image: [], gallery: [] });
         setMessage(editing ? "Änderungen wurden gespeichert." : "Beitrag wurde gespeichert.");
         load();
       } else if (!handleExpiredSession(r)) {
@@ -1059,6 +1065,12 @@ function Redaktion() {
               type="file"
               accept="image/jpeg,image/png,image/webp"
               required={!editing}
+              onChange={(event) =>
+                setSelectedFiles((files) => ({
+                  ...files,
+                  image: Array.from(event.currentTarget.files ?? []),
+                }))
+              }
             />
           </label>
           <label>
@@ -1071,8 +1083,33 @@ function Redaktion() {
         </div>
         <label>
           Weitere Bilder (bis zu 8)
-          <input name="gallery" type="file" accept="image/jpeg,image/png,image/webp" multiple />
+          <input
+            name="gallery"
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            multiple
+            onChange={(event) =>
+              setSelectedFiles((files) => ({
+                ...files,
+                gallery: Array.from(event.currentTarget.files ?? []),
+              }))
+            }
+          />
         </label>
+        {selectedFiles.image.length + selectedFiles.gallery.length > 0 && (
+          <p className="upload-summary" role="status">
+            {selectedFiles.image.length + selectedFiles.gallery.length} Bild(er) ausgewählt ·{" "}
+            {(
+              [...selectedFiles.image, ...selectedFiles.gallery].reduce(
+                (total, file) => total + file.size,
+                0,
+              ) /
+              1024 /
+              1024
+            ).toFixed(1)}{" "}
+            MB insgesamt
+          </p>
+        )}
         {editing?.gallery && editing.gallery.length > 0 && (
           <div className="gallery-manager">
             {editing.gallery.map((image: string) => (

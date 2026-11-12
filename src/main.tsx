@@ -55,6 +55,10 @@ type Post = {
     steps: string[];
   };
 };
+type AdminPost = Post & {
+  id: number;
+  status: "draft" | "published";
+};
 const posts: Post[] = [
   {
     slug: "zeitlose-basics",
@@ -705,9 +709,9 @@ function Redaktion() {
   const [logged, setLogged] = useState(false);
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
-  const [adminPosts, setAdminPosts] = useState<any[]>([]);
-  const [editing, setEditing] = useState<any | null>(null);
-  const [preview, setPreview] = useState<any | null>(null);
+  const [adminPosts, setAdminPosts] = useState<AdminPost[]>([]);
+  const [editing, setEditing] = useState<AdminPost | null>(null);
+  const [preview, setPreview] = useState<AdminPost | null>(null);
   const [adminQuery, setAdminQuery] = useState("");
   const [adminStatus, setAdminStatus] = useState<"all" | "published" | "draft">("all");
   const [adminSort, setAdminSort] = useState<"updated-desc" | "updated-asc" | "title">(
@@ -834,7 +838,7 @@ function Redaktion() {
       setBusy(false);
     }
   }
-  async function changePostStatus(post: any) {
+  async function changePostStatus(post: AdminPost) {
     if (pendingPostId !== null) return;
     setPendingPostId(post.id);
     setMessage("Beitragsstatus wird aktualisiert …");
@@ -859,7 +863,7 @@ function Redaktion() {
       setPendingPostId(null);
     }
   }
-  async function deletePost(post: any) {
+  async function deletePost(post: AdminPost) {
     if (pendingPostId !== null || !confirm("Diesen Beitrag wirklich löschen?")) return;
     setPendingPostId(post.id);
     setMessage("Beitrag wird gelöscht …");
@@ -919,7 +923,9 @@ function Redaktion() {
     )
     .sort((left, right) => {
       if (adminSort === "title") return left.title.localeCompare(right.title, "de");
-      const difference = new Date(left.updatedAt).getTime() - new Date(right.updatedAt).getTime();
+      const leftTimestamp = new Date(left.updatedAt ?? left.publishedAt ?? "").getTime();
+      const rightTimestamp = new Date(right.updatedAt ?? right.publishedAt ?? "").getTime();
+      const difference = leftTimestamp - rightTimestamp;
       return adminSort === "updated-asc" ? difference : -difference;
     });
   return (
@@ -1042,7 +1048,7 @@ function Redaktion() {
           Weitere Bilder (bis zu 8)
           <input name="gallery" type="file" accept="image/jpeg,image/png,image/webp" multiple />
         </label>
-        {editing?.gallery?.length > 0 && (
+        {editing?.gallery && editing.gallery.length > 0 && (
           <div className="gallery-manager">
             {editing.gallery.map((image: string) => (
               <label key={image}>

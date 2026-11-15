@@ -489,13 +489,21 @@ def delete_post(post_id):
 @app.post("/api/admin/password")
 @auth
 def change_password():
-    data = request.get_json(silent=True) or {}
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return jsonify(error="invalid"), 400
     current = data.get("current", "")
     new = data.get("new", "")
+    if not isinstance(current, str) or not isinstance(new, str):
+        return jsonify(error="invalid"), 400
+    if len(current) > 256 or len(new) > 128:
+        return jsonify(error="too_long"), 400
     if not check_password_hash(current_password_hash(), current):
         return jsonify(error="invalid_current"), 400
     if len(new) < 12:
         return jsonify(error="too_short"), 400
+    if new == current:
+        return jsonify(error="unchanged"), 400
     with conn() as db:
         db.execute(
             "INSERT INTO settings(key,value) VALUES('password_hash',?) ON CONFLICT(key) DO UPDATE SET value=excluded.value",

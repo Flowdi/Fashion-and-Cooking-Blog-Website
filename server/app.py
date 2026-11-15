@@ -303,7 +303,11 @@ def login():
     attempts[ip] = recent
     if len(recent) >= 8:
         return jsonify(error="rate_limited"), 429
-    password = (request.get_json(silent=True) or {}).get("password", "")
+    data = request.get_json(silent=True)
+    password = data.get("password", "") if isinstance(data, dict) else ""
+    if not isinstance(password, str) or len(password) > 256:
+        attempts[ip].append(now)
+        return jsonify(error="invalid"), 401
     if not check_password_hash(current_password_hash(), password):
         attempts[ip].append(now)
         return jsonify(error="invalid"), 401

@@ -194,6 +194,15 @@ const saveErrorMessages: Record<string, string> = {
   "content too long": "Mindestens ein Textfeld ist länger als erlaubt.",
   "invalid fields": "Bitte alle Pflichtfelder vollständig ausfüllen.",
   request_too_large: "Der Upload ist zu groß. Bitte kleinere oder weniger Bilder auswählen.",
+  "database unavailable":
+    "Die Datenbank ist gerade nicht erreichbar. Bitte später erneut versuchen.",
+};
+const passwordErrorMessages: Record<string, string> = {
+  invalid_current: "Das aktuelle Passwort ist nicht korrekt.",
+  too_short: "Das neue Passwort muss mindestens 12 Zeichen lang sein.",
+  too_long: "Das neue Passwort darf höchstens 128 Zeichen lang sein.",
+  unchanged: "Das neue Passwort muss sich vom aktuellen Passwort unterscheiden.",
+  invalid: "Die Passwortangaben konnten nicht verarbeitet werden.",
 };
 
 function showFallbackImage(event: React.SyntheticEvent<HTMLImageElement>) {
@@ -1410,8 +1419,10 @@ function Redaktion() {
                 setPasswordDraft({ newPassword: "", confirmation: "" });
                 setMessage("Passwort wurde geändert.");
               } else if (!handleExpiredSession(response)) {
+                const details = (await response.json().catch(() => ({}))) as { error?: string };
                 setMessage(
-                  "Passwortänderung fehlgeschlagen. Aktuelles Passwort prüfen und mindestens 12 Zeichen verwenden.",
+                  passwordErrorMessages[details.error ?? ""] ??
+                    "Passwortänderung fehlgeschlagen. Bitte erneut versuchen.",
                 );
               }
             } catch {

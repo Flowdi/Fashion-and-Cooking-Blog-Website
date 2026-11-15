@@ -749,6 +749,7 @@ function Redaktion() {
     image: [],
     gallery: [],
   });
+  const [passwordDraft, setPasswordDraft] = useState({ newPassword: "", confirmation: "" });
   useEffect(() => {
     setFieldLengths({
       title: editing?.title?.length ?? 0,
@@ -1406,6 +1407,7 @@ function Redaktion() {
               });
               if (response.ok) {
                 e.currentTarget.reset();
+                setPasswordDraft({ newPassword: "", confirmation: "" });
                 setMessage("Passwort wurde geändert.");
               } else if (!handleExpiredSession(response)) {
                 setMessage(
@@ -1422,7 +1424,13 @@ function Redaktion() {
           <div className="form-grid">
             <label>
               Aktuelles Passwort
-              <input name="current" type="password" required />
+              <input
+                name="current"
+                type="password"
+                maxLength={256}
+                autoComplete="current-password"
+                required
+              />
             </label>
             <label>
               Neues Passwort
@@ -1430,7 +1438,12 @@ function Redaktion() {
                 name="new"
                 type="password"
                 minLength={12}
+                maxLength={128}
                 autoComplete="new-password"
+                value={passwordDraft.newPassword}
+                onChange={(event) =>
+                  setPasswordDraft((draft) => ({ ...draft, newPassword: event.target.value }))
+                }
                 required
               />
             </label>
@@ -1440,11 +1453,23 @@ function Redaktion() {
                 name="confirm"
                 type="password"
                 minLength={12}
+                maxLength={128}
                 autoComplete="new-password"
+                value={passwordDraft.confirmation}
+                onChange={(event) =>
+                  setPasswordDraft((draft) => ({ ...draft, confirmation: event.target.value }))
+                }
                 required
               />
             </label>
           </div>
+          <p className="password-hint" aria-live="polite">
+            {passwordDraft.newPassword.length}/128 Zeichen
+            {passwordDraft.confirmation &&
+              (passwordDraft.newPassword === passwordDraft.confirmation
+                ? " · Passwörter stimmen überein"
+                : " · Passwörter stimmen noch nicht überein")}
+          </p>
           <button type="submit" disabled={busy}>
             {busy ? "Wird geändert …" : "Passwort ändern"}
           </button>

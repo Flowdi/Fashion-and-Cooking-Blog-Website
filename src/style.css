@@ -815,6 +815,11 @@ footer {
   display: grid;
   gap: 18px;
 }
+.password-hint {
+  margin: -8px 0 0;
+  color: #b9aa98;
+  font-size: 12px;
+}
 .preview-modal {
   position: fixed;
   inset: 0;

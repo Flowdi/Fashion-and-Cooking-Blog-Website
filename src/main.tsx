@@ -1481,6 +1481,10 @@ function Redaktion() {
                 maxLength={128}
                 autoComplete="new-password"
                 value={passwordDraft.confirmation}
+                aria-invalid={
+                  passwordDraft.confirmation.length > 0 &&
+                  passwordDraft.newPassword !== passwordDraft.confirmation
+                }
                 onChange={(event) =>
                   setPasswordDraft((draft) => ({ ...draft, confirmation: event.target.value }))
                 }
@@ -1495,7 +1499,14 @@ function Redaktion() {
                 ? " · Passwörter stimmen überein"
                 : " · Passwörter stimmen noch nicht überein")}
           </p>
-          <button type="submit" disabled={busy}>
+          <button
+            type="submit"
+            disabled={
+              busy ||
+              passwordDraft.newPassword.length < 12 ||
+              passwordDraft.newPassword !== passwordDraft.confirmation
+            }
+          >
             {busy ? "Wird geändert …" : "Passwort ändern"}
           </button>
         </form>

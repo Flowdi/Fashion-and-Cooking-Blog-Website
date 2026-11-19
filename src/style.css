@@ -632,6 +632,9 @@ footer {
   cursor: wait;
   opacity: 0.55;
 }
+.editor input[aria-invalid="true"] {
+  border-color: #bd6268;
+}
 .login-card form {
   display: grid;
   gap: 18px;

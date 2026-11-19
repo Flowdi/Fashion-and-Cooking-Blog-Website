@@ -746,6 +746,7 @@ function Redaktion() {
   const [preview, setPreview] = useState<AdminPost | null>(null);
   const [adminQuery, setAdminQuery] = useState("");
   const [adminStatus, setAdminStatus] = useState<"all" | "published" | "draft">("all");
+  const [adminCategory, setAdminCategory] = useState<"all" | Category>("all");
   const [adminSort, setAdminSort] = useState<"updated-desc" | "updated-asc" | "title">(
     "updated-desc",
   );
@@ -960,7 +961,8 @@ function Redaktion() {
     .filter(
       (post) =>
         `${post.title} ${post.category}`.toLocaleLowerCase("de").includes(normalizedAdminQuery) &&
-        (adminStatus === "all" || post.status === adminStatus),
+        (adminStatus === "all" || post.status === adminStatus) &&
+        (adminCategory === "all" || post.category === adminCategory),
     )
     .sort((left, right) => {
       if (adminSort === "title") return left.title.localeCompare(right.title, "de");
@@ -1323,6 +1325,17 @@ function Redaktion() {
             </select>
           </label>
           <label className="admin-search">
+            <span>Kategorie filtern</span>
+            <select
+              value={adminCategory}
+              onChange={(event) => setAdminCategory(event.target.value as "all" | Category)}
+            >
+              <option value="all">Alle Kategorien</option>
+              <option value="Fashion">Fashion</option>
+              <option value="Cooking">Cooking</option>
+            </select>
+          </label>
+          <label className="admin-search">
             <span>Sortierung</span>
             <select
               value={adminSort}
@@ -1335,13 +1348,14 @@ function Redaktion() {
               <option value="title">Titel A–Z</option>
             </select>
           </label>
-          {(adminQuery || adminStatus !== "all") && (
+          {(adminQuery || adminStatus !== "all" || adminCategory !== "all") && (
             <button
               className="admin-filter-reset"
               type="button"
               onClick={() => {
                 setAdminQuery("");
                 setAdminStatus("all");
+                setAdminCategory("all");
               }}
             >
               Filter zurücksetzen

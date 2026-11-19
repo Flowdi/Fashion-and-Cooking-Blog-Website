@@ -231,6 +231,11 @@ def request_too_large(_error):
     return jsonify(error="request_too_large"), 413
 
 
+@app.errorhandler(sqlite3.Error)
+def database_unavailable(_error):
+    return jsonify(error="database unavailable"), 503
+
+
 @app.get("/api/posts")
 def public_posts():
     with conn() as db:

@@ -933,7 +933,7 @@ function Redaktion() {
           <span>Geschützter Bereich</span>
           <h1>Redaktion</h1>
           <p>Hier kann Nelli später Beiträge direkt vom Handy erstellen.</p>
-          <form onSubmit={login}>
+          <form onSubmit={login} aria-busy={busy}>
             <label>
               Passwort
               <input
@@ -1003,6 +1003,7 @@ function Redaktion() {
         className="post-form"
         onSubmit={submit}
         onChange={() => setDirty(true)}
+        aria-busy={busy}
         key={editing?.id ?? "new"}
       >
         <div className="form-grid">
@@ -1294,7 +1295,7 @@ function Redaktion() {
           </p>
         )}
       </form>
-      <section className="admin-list">
+      <section className="admin-list" aria-busy={pendingPostId !== null}>
         <header className="admin-list-head">
           <h2>Gespeicherte Beiträge</h2>
           <p>
@@ -1411,6 +1412,7 @@ function Redaktion() {
       <section className="password-card">
         <h2>Passwort ändern</h2>
         <form
+          aria-busy={busy}
           onSubmit={async (e) => {
             e.preventDefault();
             if (busy) return;

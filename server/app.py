@@ -9,6 +9,7 @@ from datetime import datetime
 from email.utils import format_datetime
 from functools import wraps
 from pathlib import Path
+from urllib.parse import urlparse
 from xml.sax.saxutils import escape
 
 from flask import Flask, Response, jsonify, request, session
@@ -206,6 +207,18 @@ def current_password_hash():
             "SELECT value FROM settings WHERE key='password_hash'"
         ).fetchone()
     return row["value"] if row else os.environ["NELLOS_ADMIN_PASSWORD_HASH"]
+
+
+@app.before_request
+def reject_cross_site_writes():
+    if request.method in ("GET", "HEAD", "OPTIONS"):
+        return None
+    if request.headers.get("Sec-Fetch-Site") == "cross-site":
+        return jsonify(error="cross_site_request"), 403
+    origin = request.headers.get("Origin")
+    if origin and urlparse(origin).netloc != request.host:
+        return jsonify(error="cross_site_request"), 403
+    return None
 
 
 @app.after_request

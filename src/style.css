@@ -436,6 +436,27 @@ nav a[aria-current="page"] {
 .article-share span {
   color: #9f9589;
 }
+.related-articles {
+  margin: 50px 0 35px;
+  padding-top: 30px;
+  border-top: 1px solid #594323;
+}
+.related-articles > h2 {
+  margin: 0 0 22px;
+  font: 500 34px "Cormorant Garamond";
+  color: var(--ivory);
+}
+.related-articles > div {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+.related-articles .post-card {
+  font-family: Inter, sans-serif;
+}
+.related-articles .post-card img {
+  height: 190px;
+}
 .recipe {
   margin: 45px 0;
   border-top: 1px solid #594323;
@@ -960,7 +981,8 @@ footer {
     font-size: 39px;
   }
   .grid,
-  .listing-grid {
+  .listing-grid,
+  .related-articles > div {
     grid-template-columns: 1fr;
   }
   .post-card img {

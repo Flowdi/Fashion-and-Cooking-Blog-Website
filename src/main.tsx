@@ -577,7 +577,7 @@ function ShareButton({ post }: { post: Post }) {
     </div>
   );
 }
-function Article({ post }: { post: Post }) {
+function Article({ post, related = [] }: { post: Post; related?: Post[] }) {
   const isExample = posts.includes(post);
   const wasUpdated =
     post.updatedAt &&
@@ -744,6 +744,16 @@ function Article({ post }: { post: Post }) {
             <p className="editor-note">
               Beispielbeitrag – Texte und Bilder werden später durch Nellis eigene Inhalte ersetzt.
             </p>
+          )}
+          {related.length > 0 && (
+            <section className="related-articles" aria-labelledby="related-articles-title">
+              <h2 id="related-articles-title">Weitere Beiträge aus {post.category}</h2>
+              <div>
+                {related.map((item) => (
+                  <PostCard post={item} key={item.slug} />
+                ))}
+              </div>
+            </section>
           )}
           <ShareButton post={post} />
           <SiteLink className="gold-link" to={`/${post.category.toLowerCase()}`}>
@@ -1671,7 +1681,12 @@ function App() {
   else if (path === "/redaktion") page = <Redaktion />;
   else if (path.startsWith("/beitrag/")) {
     const post = items.find((p) => `/beitrag/${p.slug}` === path);
-    page = post ? <Article post={post} /> : <NotFound />;
+    const related = post
+      ? items
+          .filter((item) => item.category === post.category && item.slug !== post.slug)
+          .slice(0, 2)
+      : [];
+    page = post ? <Article post={post} related={related} /> : <NotFound />;
   } else page = <NotFound />;
   return (
     <>

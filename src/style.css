@@ -419,6 +419,23 @@ nav a[aria-current="page"] {
   font: 400 20px/1.8 "Cormorant Garamond";
   color: #d1c8bd;
 }
+.article-share {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 38px 0 24px;
+  font: 400 12px Inter;
+}
+.article-share button {
+  border: 1px solid #9d7840;
+  background: transparent;
+  color: #ddb466;
+  padding: 10px 16px;
+  cursor: pointer;
+}
+.article-share span {
+  color: #9f9589;
+}
 .recipe {
   margin: 45px 0;
   border-top: 1px solid #594323;

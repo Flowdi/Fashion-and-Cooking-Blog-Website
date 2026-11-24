@@ -549,6 +549,34 @@ function Listing({ category, items }: { category: Category; items: Post[] }) {
     </main>
   );
 }
+function ShareButton({ post }: { post: Post }) {
+  const [status, setStatus] = useState("");
+  async function share() {
+    const url = `https://nellos-world.de/beitrag/${post.slug}`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: post.title, text: post.excerpt, url });
+        setStatus("Beitrag geteilt");
+      } else {
+        await navigator.clipboard.writeText(url);
+        setStatus("Link kopiert");
+      }
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") return;
+      setStatus("Teilen ist gerade nicht möglich");
+    }
+  }
+  return (
+    <div className="article-share">
+      <button type="button" onClick={share}>
+        Beitrag teilen
+      </button>
+      <span role="status" aria-live="polite">
+        {status}
+      </span>
+    </div>
+  );
+}
 function Article({ post }: { post: Post }) {
   const isExample = posts.includes(post);
   return (
@@ -702,6 +730,7 @@ function Article({ post }: { post: Post }) {
               Beispielbeitrag – Texte und Bilder werden später durch Nellis eigene Inhalte ersetzt.
             </p>
           )}
+          <ShareButton post={post} />
           <SiteLink className="gold-link" to={`/${post.category.toLowerCase()}`}>
             ← Zurück zu {post.category}
           </SiteLink>

@@ -579,6 +579,10 @@ function ShareButton({ post }: { post: Post }) {
 }
 function Article({ post }: { post: Post }) {
   const isExample = posts.includes(post);
+  const wasUpdated =
+    post.updatedAt &&
+    post.publishedAt &&
+    new Date(post.updatedAt).getTime() - new Date(post.publishedAt).getTime() > 60_000;
   return (
     <main>
       <article className="article">
@@ -590,6 +594,17 @@ function Article({ post }: { post: Post }) {
             <time dateTime={post.publishedAt}>{post.date}</time>
             <i>◇</i>
             <span>{post.readTime}</span>
+            {wasUpdated && (
+              <>
+                <i>◇</i>
+                <time dateTime={post.updatedAt}>
+                  Aktualisiert{" "}
+                  {new Intl.DateTimeFormat("de-DE", { dateStyle: "medium" }).format(
+                    new Date(post.updatedAt!),
+                  )}
+                </time>
+              </>
+            )}
           </div>
         </div>
         <img

@@ -430,8 +430,10 @@ def create_post():
             remove_upload(upload)
         return jsonify(error=str(error)), 400
     slug = f"{slugify(values['title'])}-{secrets.token_hex(3)}"
+    created_at = datetime.now().isoformat()
+    values["updated_at"] = created_at
     columns = ["slug", *values.keys(), "created_at"]
-    payload = [slug, *values.values(), datetime.now().isoformat()]
+    payload = [slug, *values.values(), created_at]
     try:
         with conn() as db:
             db.execute(

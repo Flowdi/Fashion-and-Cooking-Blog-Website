@@ -1470,7 +1470,8 @@ function Redaktion() {
           onSubmit={async (e) => {
             e.preventDefault();
             if (busy) return;
-            const form = new FormData(e.currentTarget);
+            const passwordForm = e.currentTarget;
+            const form = new FormData(passwordForm);
             if (form.get("new") !== form.get("confirm")) {
               setMessage("Die neuen Passwörter stimmen nicht überein.");
               return;
@@ -1485,7 +1486,7 @@ function Redaktion() {
                 body: JSON.stringify({ current: form.get("current"), new: form.get("new") }),
               });
               if (response.ok) {
-                e.currentTarget.reset();
+                passwordForm.reset();
                 setPasswordDraft({ newPassword: "", confirmation: "" });
                 setMessage("Passwort wurde geändert.");
               } else if (!handleExpiredSession(response)) {

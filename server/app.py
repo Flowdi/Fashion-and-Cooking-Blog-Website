@@ -376,15 +376,15 @@ def post_values(existing=None, created_uploads=None):
     if not image:
         raise ValueError("missing image")
     gallery = json_list(existing["gallery"]) if existing else []
+    removed = set(request.form.getlist("remove_gallery")) & set(gallery)
+    obsolete_uploads.extend(removed)
+    gallery = [url for url in gallery if url not in removed]
     available_gallery_slots = max(0, 8 - len(gallery))
     for file in request.files.getlist("gallery")[:available_gallery_slots]:
         if file and file.filename:
             gallery_image = save_image(file)
             created_uploads.append(gallery_image)
             gallery.append(gallery_image)
-    removed = set(request.form.getlist("remove_gallery")) & set(gallery)
-    obsolete_uploads.extend(removed)
-    gallery = [url for url in gallery if url not in removed][:8]
     values = {
         "category": category,
         "title": title,

@@ -1068,12 +1068,13 @@ function Redaktion() {
               required
               maxLength={140}
               defaultValue={editing?.title ?? ""}
-              onInput={(event) =>
+              onInput={(event) => {
+                const length = event.currentTarget.value.length;
                 setFieldLengths((lengths) => ({
                   ...lengths,
-                  title: event.currentTarget.value.length,
-                }))
-              }
+                  title: length,
+                }));
+              }}
             />
             <small className="field-count">{fieldLengths.title}/140 Zeichen</small>
           </label>
@@ -1097,12 +1098,13 @@ function Redaktion() {
             required
             maxLength={300}
             defaultValue={editing?.excerpt ?? ""}
-            onInput={(event) =>
+            onInput={(event) => {
+              const length = event.currentTarget.value.length;
               setFieldLengths((lengths) => ({
                 ...lengths,
-                excerpt: event.currentTarget.value.length,
-              }))
-            }
+                excerpt: length,
+              }));
+            }}
           />
           <small className="field-count">{fieldLengths.excerpt}/300 Zeichen</small>
         </label>
@@ -1115,12 +1117,13 @@ function Redaktion() {
             maxLength={30000}
             placeholder="Absätze werden durch Leerzeilen getrennt."
             defaultValue={editing?.content?.join("\n\n") ?? ""}
-            onInput={(event) =>
+            onInput={(event) => {
+              const length = event.currentTarget.value.length;
               setFieldLengths((lengths) => ({
                 ...lengths,
-                content: event.currentTarget.value.length,
-              }))
-            }
+                content: length,
+              }));
+            }}
           />
           <small className="field-count">{fieldLengths.content}/30.000 Zeichen</small>
         </label>

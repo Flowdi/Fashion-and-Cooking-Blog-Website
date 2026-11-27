@@ -1135,12 +1135,13 @@ function Redaktion() {
               type="file"
               accept="image/jpeg,image/png,image/webp"
               required={!editing}
-              onChange={(event) =>
+              onChange={(event) => {
+                const selection = Array.from(event.currentTarget.files ?? []);
                 setSelectedFiles((files) => ({
                   ...files,
-                  image: Array.from(event.currentTarget.files ?? []),
-                }))
-              }
+                  image: selection,
+                }));
+              }}
             />
           </label>
           <label>
@@ -1158,12 +1159,13 @@ function Redaktion() {
             type="file"
             accept="image/jpeg,image/png,image/webp"
             multiple
-            onChange={(event) =>
+            onChange={(event) => {
+              const selection = Array.from(event.currentTarget.files ?? []);
               setSelectedFiles((files) => ({
                 ...files,
-                gallery: Array.from(event.currentTarget.files ?? []),
-              }))
-            }
+                gallery: selection,
+              }));
+            }}
           />
         </label>
         {selectedFiles.image.length + selectedFiles.gallery.length > 0 && (
